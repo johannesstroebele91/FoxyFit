@@ -1,5 +1,7 @@
 # FoxyFit
 
+This community fitness tracker enables users to track their progress, check-in on their friends, and get inspired.
+Angular, Angular Material, Vercel, and Firebase are the most prominent technologies used for this cloud application.
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.2.2.
 
 ## Development server
