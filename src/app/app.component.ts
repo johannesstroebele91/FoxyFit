@@ -17,12 +17,10 @@ import {AuthService} from "./services/auth.service";
   template: `
     <mat-toolbar color="primary">
       <mat-toolbar-row>
-        <span style="letter-spacing: 1.2px">{{ title }}<span class="material-icons"
-                                                             style="font-size: 18px; margin-left: 3px">
-directions_run
-</span></span>
+        <span style="letter-spacing: 1.2px">{{ title }}</span>
+        <mat-icon style="margin-left: 3px">directions_run</mat-icon>
         <span style="flex: 1 1 auto;"></span>
-        <a *ngIf="isNotHomeRoute()" routerLink="/" (click)="logout()"
+        <a *ngIf="isNotOnLandingOrRegisterPage()" routerLink="/" (click)="logout()"
            style="color: white; text-decoration: none; font-size: 16px">Logout</a>
       </mat-toolbar-row>
     </mat-toolbar>
@@ -38,8 +36,10 @@ export class AppComponent {
   constructor(private router: Router, private authService: AuthService) {
   }
 
-  isNotHomeRoute(): boolean {
-    return this.router.url !== '/';
+  isNotOnLandingOrRegisterPage(): boolean {
+    const isOnLandingPage = this.router.url !== '/';
+    const isOnRegisterPage = this.router.url !== '/register';
+    return (isOnLandingPage && isOnRegisterPage);
   }
 
   logout() {

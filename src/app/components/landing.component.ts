@@ -60,19 +60,14 @@ import {MatCard, MatCardContent, MatCardHeader, MatCardModule} from "@angular/ma
               </button>
               <mat-error *ngIf="password.invalid">{{ getErrorMessage(email) }}</mat-error>
             </mat-form-field>
-
           </div>
-
           <button type="submit" mat-raised-button color="primary" style="margin: 0 auto;">
             Login
           </button>
-          <mat-error style="margin-top: 12px" *ngIf="formIsInvalid && formWasTouched">Form is invalid AND was
-            touched
-          </mat-error>
         </form>
       </mat-card-content>
-      <mat-card-footer><p style="margin: 20px auto 0;">Noch kein Mitglied? <a routerLink="register">Jetzt
-        registrieren!</a></p></mat-card-footer>
+      <mat-card-footer><p style="margin: 20px auto 0;">Not a member yet? <a routerLink="register">Register now!</a></p>
+      </mat-card-footer>
     </mat-card>
   `,
   standalone: true
@@ -95,16 +90,7 @@ export class LandingComponent {
     return this.loginForm.get('password');
   }
 
-  get formIsInvalid() {
-    return this.loginForm.invalid;
-  }
-
-  get formWasTouched() {
-    return this.loginForm.touched;
-  }
-
   onSubmit() {
-    console.log(this.loginForm)
     if (this.email && this.password) {
       this.authService.login(this.email.value, this.password.value).then(response => {
         if (response) {
