@@ -13,7 +13,14 @@ import {MatError, MatFormField, MatLabel, MatSuffix} from "@angular/material/for
 import {MatIcon} from "@angular/material/icon";
 import {MatInput} from "@angular/material/input";
 import {NgIf} from "@angular/common";
-import {RouterLink} from "@angular/router";
+import {Router, RouterLink} from "@angular/router";
+import {HttpClient, HttpClientModule} from "@angular/common/http";
+import {AuthService} from "../services/auth.service";
+
+interface User {
+  email: string,
+  password: string
+}
 
 @Component({
   selector: 'app-selector', standalone: true,
@@ -35,7 +42,8 @@ import {RouterLink} from "@angular/router";
     MatSuffix,
     NgIf,
     ReactiveFormsModule,
-    RouterLink
+    RouterLink,
+    HttpClientModule
   ],
   template: `
     <mat-card style="padding: 30px 12px; text-align: center; width: 450px; margin: 0 auto;">
@@ -49,6 +57,7 @@ import {RouterLink} from "@angular/router";
         <mat-card-subtitle style="margin: 30px auto; font-size: 24px;">Sign up here to continue
         </mat-card-subtitle>
       </mat-card-header>
+
       <mat-card-content>
         <form (ngSubmit)="onSubmit()">
           <div [formGroup]="signupForm">
@@ -69,6 +78,7 @@ import {RouterLink} from "@angular/router";
               <mat-error *ngIf="password.invalid">{{ getErrorMessage(email) }}</mat-error>
             </mat-form-field>
           </div>
+
           <button type="submit" mat-raised-button color="primary" style="margin: 10px auto 30px auto;">
             Register
           </button>
@@ -88,7 +98,7 @@ export class RegisterComponent {
   });
 
 
-  constructor() {
+  constructor(private http: HttpClient, private router: Router, private authService: AuthService) {
   }
 
   get email(): any {
@@ -100,7 +110,22 @@ export class RegisterComponent {
   }
 
   onSubmit() {
-    console.log(this.signupForm)
+    if (this.signupForm.value.email && this.signupForm.value.password) {
+      this.onRegisterUser({email: this.signupForm.value.email, password: this.signupForm.value.password})
+    }
+  }
+
+  onRegisterUser(user: User) {
+    this.http.post<{
+      name: string
+    }>('https://foxy-fit-default-rtdb.europe-west1.firebasedatabase.app/users.json', user).subscribe((responseData) => {
+      console.log('User was created with this ID: ' + responseData.name)
+      this.authService.login(user.email, user.password).then(response => {
+        if (response) {
+          this.router.navigate(['/home'])
+        }
+      })
+    })
   }
 
 
