@@ -66,6 +66,8 @@ import {MatCard, MatCardContent, MatCardHeader, MatCardModule} from "@angular/ma
           </button>
         </form>
       </mat-card-content>
+      <mat-error *ngIf="errorMessage" style="margin-top: 10px">{{ errorMessage }}
+      </mat-error>
       <mat-card-footer><p style="margin: 20px auto 0;">Not a member yet? <a routerLink="register">Register now!</a></p>
       </mat-card-footer>
     </mat-card>
@@ -73,6 +75,7 @@ import {MatCard, MatCardContent, MatCardHeader, MatCardModule} from "@angular/ma
   standalone: true
 })
 export class LandingComponent {
+  errorMessage: string = '';
   hide = true;
   loginForm = new FormGroup({
     email: new FormControl('', [Validators.required, Validators.email]),
@@ -93,8 +96,12 @@ export class LandingComponent {
   onSubmit() {
     if (!this.loginForm.invalid && this.loginForm.value.email && this.loginForm.value.password) {
       this.authService.login(this.loginForm.value.email, this.loginForm.value.password).then(response => {
-        if (response) {
+        if (response.loginAllowed) {
           this.router.navigate(['/home'])
+        } else {
+          if (response.errorMessage) {
+            this.errorMessage = response.errorMessage;
+          }
         }
       })
     }

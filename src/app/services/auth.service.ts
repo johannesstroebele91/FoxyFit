@@ -30,20 +30,33 @@ export class AuthService {
     });
   }
 
-  login(email: string | null, password: string | null): Promise<boolean> {
-    // Use a fake token for now
-    this.token = fakeToken;
-
+  login(email: string | null, password: string | null): Promise<{
+    loginAllowed: boolean,
+    errorMessage?: string | null
+  }> {
     return new Promise((resolve, reject) => {
-      this.fetchPosts().subscribe((users) => {
-        this.loadedUsers = users;
-        console.log(this.loadedUsers);
-        const userInsertedValidCreds = this.loadedUsers.some((user) => {
-          return user.email === email && user.password === password
-        });
+      // Simulate token authentication
+      this.token = fakeToken;
 
-        if (userInsertedValidCreds && this.token === fakeToken) {
-          resolve(true);
+      // Fetch users
+      this.fetchPosts().subscribe({
+        next: (users) => {
+          // Check if any user matches the provided email and password
+          const userInsertedValidCreds = users.some((user) => {
+            return user.email === email && user.password === password;
+          });
+
+          if (userInsertedValidCreds && this.token === fakeToken) {
+            resolve({loginAllowed: true});
+          } else {
+            resolve({
+              loginAllowed: false,
+              errorMessage: 'Invalid email, password or token. Please try again or register a new user via the link below.'
+            });
+          }
+        },
+        error: (error) => {
+          reject({loginAllowed: false, errorMessage: error.message});
         }
       });
     });
