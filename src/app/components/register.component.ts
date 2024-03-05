@@ -17,6 +17,7 @@ import {Router, RouterLink} from "@angular/router";
 import {HttpClient} from "@angular/common/http";
 import {AuthService} from "../services/auth.service";
 import {User} from "../models";
+import {UserService} from "../services/user.service";
 
 @Component({
   selector: 'app-selector', standalone: true,
@@ -101,7 +102,7 @@ export class RegisterComponent {
   });
 
 
-  constructor(private http: HttpClient, private router: Router, private authService: AuthService) {
+  constructor(private http: HttpClient, private router: Router, private authService: AuthService, private userService: UserService) {
   }
 
   get name(): any {
@@ -119,10 +120,20 @@ export class RegisterComponent {
 
   onSubmit() {
     if (this.signupForm.value.name && this.signupForm.value.email && this.signupForm.value.password) {
-      this.createNewUser({
+      this.userService.createNewUser({
         name: this.signupForm.value.name,
         email: this.signupForm.value.email,
         password: this.signupForm.value.password
+      }).subscribe((responseData: { name: string; }) => {
+        console.log('User was created with this ID: ' + responseData.name)
+        this.authService.login({
+          email: this.signupForm.value.email,
+          password: this.signupForm.value.password
+        }).then(response => {
+          if (response) {
+            this.router.navigate(['/home'])
+          }
+        })
       })
     }
   }
