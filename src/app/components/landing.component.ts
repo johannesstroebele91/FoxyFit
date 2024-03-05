@@ -91,8 +91,8 @@ export class LandingComponent {
   }
 
   onSubmit() {
-    if (this.email && this.password) {
-      this.authService.login(this.email.value, this.password.value).then(response => {
+    if (!this.loginForm.invalid && this.loginForm.value.email && this.loginForm.value.password) {
+      this.authService.login(this.loginForm.value.email, this.loginForm.value.password).then(response => {
         if (response) {
           this.router.navigate(['/home'])
         }

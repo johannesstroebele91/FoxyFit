@@ -14,7 +14,7 @@ import {MatIcon} from "@angular/material/icon";
 import {MatInput} from "@angular/material/input";
 import {NgIf} from "@angular/common";
 import {Router, RouterLink} from "@angular/router";
-import {HttpClient, HttpClientModule} from "@angular/common/http";
+import {HttpClient} from "@angular/common/http";
 import {AuthService} from "../services/auth.service";
 
 interface User {
@@ -43,7 +43,6 @@ interface User {
     NgIf,
     ReactiveFormsModule,
     RouterLink,
-    HttpClientModule
   ],
   template: `
     <mat-card style="padding: 30px 12px; text-align: center; width: 450px; margin: 0 auto;">
