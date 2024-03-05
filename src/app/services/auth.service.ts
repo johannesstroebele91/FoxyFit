@@ -1,13 +1,8 @@
 import {Injectable} from '@angular/core';
-import {HttpClient} from "@angular/common/http";
 import {User} from "../models";
-import {map, Observable} from "rxjs";
+import {UserService} from "./user.service";
 
-const fakeToken = 'fakeToken';
-
-interface ResponseData {
-  [key: string]: User;
-}
+const FAKE_TOKEN = 'FAKE_TOKEN';
 
 
 @Injectable({
@@ -17,9 +12,8 @@ export class AuthService {
 
   // This would be replaced with actual token logic in a real app
   private token: string | null = null;
-  private loadedUsers: User[] | undefined;
 
-  constructor(private http: HttpClient) {
+  constructor(private userService: UserService) {
   }
 
 
@@ -30,23 +24,25 @@ export class AuthService {
     });
   }
 
-  login(email: string | null, password: string | null): Promise<{
+  login(user: User): Promise<{
     loginAllowed: boolean,
     errorMessage?: string | null
   }> {
+    const {email, password} = user;
+
     return new Promise((resolve, reject) => {
       // Simulate token authentication
-      this.token = fakeToken;
+      this.token = FAKE_TOKEN;
 
       // Fetch users
-      this.fetchPosts().subscribe({
+      this.userService.fetchUsers().subscribe({
         next: (users) => {
           // Check if any user matches the provided email and password
-          const userInsertedValidCreds = users.some((user) => {
-            return user.email === email && user.password === password;
+          const userInsertedValidCreds = users.some((loadedUser) => {
+            return loadedUser.email === email && loadedUser.password === password;
           });
 
-          if (userInsertedValidCreds && this.token === fakeToken) {
+          if (userInsertedValidCreds && this.token === FAKE_TOKEN) {
             resolve({loginAllowed: true});
           } else {
             resolve({
@@ -65,21 +61,6 @@ export class AuthService {
   logout() {
     // Clear the token on logout
     this.token = null;
-  }
-
-  private fetchPosts(): Observable<User[]> {
-    return this.http.get<ResponseData>('https://foxy-fit-default-rtdb.europe-west1.firebasedatabase.app//users.json').pipe(
-      map((responseData: ResponseData) => {
-          const users: User[] = [];
-          for (const key in responseData) {
-            if (responseData.hasOwnProperty(key)) {
-              users.push({...responseData[key], id: key});
-            }
-          }
-          return users;
-        }
-      )
-    )
   }
 }
 
