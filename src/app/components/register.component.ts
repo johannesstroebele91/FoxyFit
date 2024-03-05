@@ -16,11 +16,7 @@ import {NgIf} from "@angular/common";
 import {Router, RouterLink} from "@angular/router";
 import {HttpClient} from "@angular/common/http";
 import {AuthService} from "../services/auth.service";
-
-interface User {
-  email: string,
-  password: string
-}
+import {User} from "../models";
 
 @Component({
   selector: 'app-selector', standalone: true,
@@ -58,23 +54,30 @@ interface User {
       </mat-card-header>
 
       <mat-card-content>
-        <form (ngSubmit)="onSubmit()">
+        <form (ngSubmit)="onSubmit()" autocomplete="off">
           <div [formGroup]="signupForm">
+
+            <mat-form-field style="display: block">
+              <mat-label>Enter your nickname</mat-label>
+              <input matInput formControlName="name" placeholder="John Doe" name="name">
+              <mat-error *ngIf="name.invalid">{{ getErrorMessage(name) }}</mat-error>
+            </mat-form-field>
+
             <mat-form-field style="display: block">
               <mat-label>Enter your email</mat-label>
-              <input matInput formControlName="email" placeholder="pat@example.com" name="email" autocomplete="email">
+              <input matInput formControlName="email" placeholder="pat@example.com" name="email" autocomplete="off">
               <mat-error *ngIf="email.invalid">{{ getErrorMessage(email) }}</mat-error>
             </mat-form-field>
 
             <mat-form-field style="display: block">
               <mat-label>Enter your password</mat-label>
               <input matInput formControlName="password" [type]="hide ? 'password' : 'text'" name="password"
-                     autocomplete="current-password">
+                     autocomplete="new-password">
               <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
                       [attr.aria-pressed]="hide">
                 <mat-icon>{{ hide ? 'visibility_off' : 'visibility' }}</mat-icon>
               </button>
-              <mat-error *ngIf="password.invalid">{{ getErrorMessage(email) }}</mat-error>
+              <mat-error *ngIf="password.invalid">{{ getErrorMessage(password) }}</mat-error>
             </mat-form-field>
           </div>
 
@@ -92,6 +95,7 @@ interface User {
 export class RegisterComponent {
   hide = true;
   signupForm = new FormGroup({
+    name: new FormControl('', [Validators.required]),
     email: new FormControl('', [Validators.required, Validators.email]),
     password: new FormControl('', Validators.required),
   });
@@ -99,6 +103,11 @@ export class RegisterComponent {
 
   constructor(private http: HttpClient, private router: Router, private authService: AuthService) {
   }
+
+  get name(): any {
+    return this.signupForm.get('name');
+  }
+
 
   get email(): any {
     return this.signupForm.get('email');
@@ -109,17 +118,21 @@ export class RegisterComponent {
   }
 
   onSubmit() {
-    if (this.signupForm.value.email && this.signupForm.value.password) {
-      this.onRegisterUser({email: this.signupForm.value.email, password: this.signupForm.value.password})
+    if (this.signupForm.value.name && this.signupForm.value.email && this.signupForm.value.password) {
+      this.createNewUser({
+        name: this.signupForm.value.name,
+        email: this.signupForm.value.email,
+        password: this.signupForm.value.password
+      })
     }
   }
 
-  onRegisterUser(user: User) {
+  createNewUser(user: User) {
     this.http.post<{
       name: string
     }>('https://foxy-fit-default-rtdb.europe-west1.firebasedatabase.app/users.json', user).subscribe((responseData) => {
       console.log('User was created with this ID: ' + responseData.name)
-      this.authService.login(user.email, user.password).then(response => {
+      this.authService.login({email: user.email, password: user.password}).then(response => {
         if (response) {
           this.router.navigate(['/home'])
         }
@@ -129,6 +142,7 @@ export class RegisterComponent {
 
 
   getErrorMessage(formControl: FormControl) {
+    console.log(formControl)
     if (formControl.hasError('required')) {
       return 'You must enter a value';
     }
