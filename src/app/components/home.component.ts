@@ -5,32 +5,13 @@ import {MatToolbar} from "@angular/material/toolbar";
 import {NgForOf, NgIf} from "@angular/common";
 import {RouterLink} from "@angular/router";
 import {UserWorkoutsComponent} from "./user-workouts.component";
-
-function generateDates(): Date[] {
-  const dates: Date[] = [];
-  const today = new Date();
-  dates.push(today);
-
-  for (let i = 1; i <= 3; i++) {
-    const previousDate = new Date(today);
-    previousDate.setDate(today.getDate() - i);
-    dates.push(previousDate);
-  }
-
-  return dates;
-}
-
-const USERS_WORKOUTS: Date[][] = [
-  generateDates(), generateDates(), generateDates()
-];
-
-// Accessing elements
-console.log(USERS_WORKOUTS);
+import {UserService} from "../services/user.service";
+import {User} from "../models";
 
 @Component({
   selector: 'app-home', standalone: true,
   template: `
-    <app-user-workouts *ngFor="let userWorkouts of usersWorkouts" [workouts]="userWorkouts"></app-user-workouts>
+    <app-user-workouts *ngFor="let user of loadedUsers" [user]="user"></app-user-workouts>
   `,
   imports: [
     MatCard,
@@ -46,9 +27,20 @@ console.log(USERS_WORKOUTS);
   ]
 })
 export class HomeComponent implements OnInit {
-  usersWorkouts: Date[][] = USERS_WORKOUTS;
+  loadedUsers: User[] | undefined;
+
+  constructor(private userService: UserService) {
+  }
 
   ngOnInit(): void {
-
+    this.userService.fetchUsers().subscribe({
+      next: (users: User[]) => {
+        this.loadedUsers = users;
+      },
+      error: (error) => {
+        console.log('Error loading users' + this.loadedUsers)
+        console.log(error.errorMessage)
+      }
+    });
   }
 }

@@ -1,6 +1,48 @@
-import {Component, Input} from "@angular/core";
+import {Component, Input, OnInit} from "@angular/core";
 import {MatCalendar, MatCalendarCellCssClasses} from "@angular/material/datepicker";
 import {MatCard, MatCardContent, MatCardHeader, MatCardTitle} from "@angular/material/card";
+import {User} from "../models";
+import {MatButton} from "@angular/material/button";
+import {Router, RouterLink} from "@angular/router";
+
+
+/**
+ * TODO delete later when users can add workouts by themselves
+ * Generates an array of random dates distributed across the current month,
+ * the last month, and the month before the last month.
+ * @returns An array of Date objects representing the randomly generated dates.
+ */
+function createDates(): Date[] {
+  const today = new Date();
+  const dates: Date[] = [];
+  const months = [today.getMonth(), today.getMonth() - 1, today.getMonth() - 2];
+
+  // Calculate the number of dates to generate for each month
+  const datesPerMonth = [5, 5, 5];
+
+  // Iterate through each month
+  for (let i = 0; i < months.length; i++) {
+    const year = today.getFullYear();
+    const month = months[i];
+    const daysInMonth = new Date(year, month + 1, 0).getDate(); // Get the number of days in the month
+
+    // Generate the specified number of dates for the current month
+    for (let j = 0; j < datesPerMonth[i]; j++) {
+      // Generate a random day within the month
+      const randomDay = Math.floor(Math.random() * daysInMonth) + 1;
+
+      // If it's the current month, ensure that the date is not later than today
+      if (i === 0 && month === today.getMonth() && randomDay > today.getDate()) {
+        continue;
+      }
+
+      dates.push(new Date(year, month, randomDay));
+    }
+  }
+
+  return dates;
+}
+
 
 @Component({
   selector: 'app-user-workouts',
@@ -25,7 +67,7 @@ import {MatCard, MatCardContent, MatCardHeader, MatCardTitle} from "@angular/mat
     }
 
     .mat-card-content {
-      overflow-x: auto; /* Allow horizontal scrolling if content overflows */
+      overflow-x: auto;
     }
   `],
   imports: [
@@ -33,35 +75,63 @@ import {MatCard, MatCardContent, MatCardHeader, MatCardTitle} from "@angular/mat
     MatCard,
     MatCardContent,
     MatCardHeader,
-    MatCardTitle
+    MatCardTitle,
+    MatButton,
+    RouterLink
   ],
   template: `
     <mat-card class="custom-card">
-      <mat-card-header>
-        <mat-card-title>Mikhail (3x pro Woche)</mat-card-title>
+      <mat-card-header style="display: flex; justify-content: space-between; margin: 15px 0 10px 0">
+        <mat-card-title>{{ mockedUser?.name }} ({{ mockedUser?.workoutData?.goalPerWeek }}x pro Woche)</mat-card-title>
+        <button mat-raised-button (click)="navigateToDetailPage()">View</button>
       </mat-card-header>
       <mat-card-content class="row-flex">
-        <mat-calendar [selected]="selectedDate" [dateClass]="dateClass"
+        <!-- Month Before Last Month -->
+        <mat-calendar [startAt]="monthBeforeLast" [selected]="selectedDate" [dateClass]="dateClass"
                       style="width: 200px; margin: 0 10px;"></mat-calendar>
-        <mat-calendar [selected]="selectedDate" [dateClass]="dateClass"
+        <!-- Last Month -->
+        <mat-calendar [startAt]="lastMonth" [selected]="selectedDate" [dateClass]="dateClass"
                       style="width: 200px; margin: 0 10px;"></mat-calendar>
-        <mat-calendar [selected]="selectedDate" [dateClass]="dateClass"
+        <!-- Current Month -->
+        <mat-calendar [startAt]="today" [selected]="selectedDate" [dateClass]="dateClass"
                       style="width: 200px; margin: 0 10px;"></mat-calendar>
       </mat-card-content>
     </mat-card>`
 })
-export class UserWorkoutsComponent {
-  @Input() workouts!: Date[];
-
+export class UserWorkoutsComponent implements OnInit {
+  @Input() user!: User;
+  mockedUser: User | undefined;
   selectedDate!: Date;
 
-  // TODO fix t hat also "date" argument is used here
+  today = new Date();
+  lastMonth = new Date(this.today.getFullYear(), this.today.getMonth() - 1, 1);
+  monthBeforeLast = new Date(this.today.getFullYear(), this.today.getMonth() - 2, 1);
+
+  constructor(private router: Router) {
+  }
+
+  ngOnInit(): void {
+    // TODO let users insert their workoutData later by themselves instead of populating it with mock data
+    this.mockedUser = {
+      ...this.user,
+      workoutData: {
+        goalPerWeek: Math.floor(Math.random() * 4) + 1,
+        completedWorkouts: createDates()
+      }
+    };
+  }
+
   dateClass = (date: Date): MatCalendarCellCssClasses => {
-    const highlightDate = this.workouts.some(date =>
-      date.getDate() === date.getDate() &&
-      date.getMonth() === date.getMonth() &&
-      date.getFullYear() === date.getFullYear());
+    const highlightDate = this.mockedUser?.workoutData?.completedWorkouts?.some(completedWorkoutAsDay =>
+      completedWorkoutAsDay.getDate() === date.getDate() &&
+      completedWorkoutAsDay.getMonth() === date.getMonth() &&
+      completedWorkoutAsDay.getFullYear() === date.getFullYear());
 
     return highlightDate ? 'workout-day' : '';
   };
+
+  navigateToDetailPage() {
+    this.router.navigate(['/detail'])
+
+  }
 }

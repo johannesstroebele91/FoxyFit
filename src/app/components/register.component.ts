@@ -16,11 +16,10 @@ import {NgIf} from "@angular/common";
 import {Router, RouterLink} from "@angular/router";
 import {HttpClient} from "@angular/common/http";
 import {AuthService} from "../services/auth.service";
-import {User} from "../models";
 import {UserService} from "../services/user.service";
 
 @Component({
-  selector: 'app-selector', standalone: true,
+  selector: 'app-register', standalone: true,
   imports: [
     FormsModule,
     MatButton,
@@ -138,22 +137,7 @@ export class RegisterComponent {
     }
   }
 
-  createNewUser(user: User) {
-    this.http.post<{
-      name: string
-    }>('https://foxy-fit-default-rtdb.europe-west1.firebasedatabase.app/users.json', user).subscribe((responseData) => {
-      console.log('User was created with this ID: ' + responseData.name)
-      this.authService.login({email: user.email, password: user.password}).then(response => {
-        if (response) {
-          this.router.navigate(['/home'])
-        }
-      })
-    })
-  }
-
-
   getErrorMessage(formControl: FormControl) {
-    console.log(formControl)
     if (formControl.hasError('required')) {
       return 'You must enter a value';
     }

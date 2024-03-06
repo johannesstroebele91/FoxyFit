@@ -7,6 +7,6 @@ export interface User {
 }
 
 export interface WorkoutData {
-  goalPerWeek: number
-  completedWorkouts: Date[]
+  goalPerWeek?: number
+  completedWorkouts?: Date[]
 }
