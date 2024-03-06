@@ -1,4 +1,4 @@
-import {Component} from "@angular/core";
+import {Component, OnInit} from "@angular/core";
 import {MatCard, MatCardContent, MatCardHeader, MatCardTitle} from "@angular/material/card";
 import {User} from "../models";
 import {MatButton, MatIconButton} from "@angular/material/button";
@@ -6,12 +6,15 @@ import {MatCalendar, MatCalendarCellCssClasses} from "@angular/material/datepick
 import {calculateHighlightedUserWorkouts} from "../shared/utils";
 import {MatProgressSpinner} from "@angular/material/progress-spinner";
 import {MatIcon} from "@angular/material/icon";
-import {RouterLink} from "@angular/router";
+import {ActivatedRoute, RouterLink} from "@angular/router";
+import {UserService} from "../services/user.service";
+import {NgIf} from "@angular/common";
+import {WORKOUT_DATA} from "../shared/mock-data";
+
 
 @Component({
   selector: 'app-detail-user',
   standalone: true,
-  styles: ['.distribute-vertically {  display: flex; flex-direction: column; flex-wrap: nowrap; justify-content: space-evenly; align-items: center; align-content: stretch;}'],
   imports: [
     MatCard,
     MatCardHeader,
@@ -22,8 +25,24 @@ import {RouterLink} from "@angular/router";
     MatProgressSpinner,
     MatIcon,
     MatIconButton,
-    RouterLink
+    RouterLink,
+    NgIf
   ],
+  styles: [`
+    ::ng-deep .workout-day {
+      background-color: #b6eea7 !important;
+      border-radius: 60px;
+    }
+
+    .distribute-vertically {
+      display: flex;
+      flex-direction: column;
+      flex-wrap: nowrap;
+      justify-content: space-evenly;
+      align-items: center;
+      align-content: stretch;
+    }
+  `],
   template: `
     <div style="width: 600px; margin: 20px auto 60px auto;">
       <div style="display: flex; flex-direction: row; align-items: center; padding-bottom: 18px">
@@ -31,7 +50,7 @@ import {RouterLink} from "@angular/router";
                 style="position: relative; ">
           <mat-icon>arrow_back</mat-icon>
         </button>
-        <h1 style="margin: 0">{{ mockedUser.name }}</h1>
+        <h1 style="margin: 0">{{ mockedUser?.name }}</h1>
       </div>
 
       <mat-card style="padding: 12px 0; margin-bottom: 30px">
@@ -41,13 +60,17 @@ import {RouterLink} from "@angular/router";
         </mat-card-header>
         <mat-card-content>
           <ul>
-            <li style="padding-bottom: 6px">Your goal per week: <b style="padding-left: 6px">2</b></li>
+            <li style="padding-bottom: 6px">Your goal per week: <b
+              style="padding-left: 6px">{{ mockedUser?.workoutData?.goalPerWeek }}</b></li>
+            <!-- TODO fix later with dynamic data-->
             <li style="padding-bottom: 6px">1 from 3 workouts done for this week</li>
+            <!-- TODO fix later with dynamic data-->
             <li style="padding-bottom: 18px">Finish your workout today, to stay on track</li>
           </ul>
         </mat-card-content>
       </mat-card>
 
+      <!-- TODO enable real dynamic calculation of user's workout progress -->
       <mat-card style="padding: 12px 0; margin-bottom: 30px">
         <mat-card-header style="padding-bottom: 9px">
           <mat-card-title>Workout progress</mat-card-title>
@@ -90,21 +113,33 @@ import {RouterLink} from "@angular/router";
           <mat-card-title>Workouts</mat-card-title>
           <button mat-raised-button (click)="changeWorkoutGoal()">Add workout</button>
         </mat-card-header>
-        <mat-card-content>
-          <mat-calendar [dateClass]="dateClass"></mat-calendar>
+        <mat-card-content *ngIf="userIsLoaded">
+          <mat-calendar [selected]="selectedDate" [dateClass]="dateClass"></mat-calendar>
         </mat-card-content>
       </mat-card>
     </div>
   `
 })
-export class DetailUserComponent {
+export class DetailUserComponent implements OnInit {
+  mockedUser: User | undefined;
+  selectedDate!: Date;
+  userIsLoaded = false;
 
-  // TODO fix later by passing user via route id to component
-  mockedUser: User = {
-    name: 'Max Mustermann',
-    email: undefined,
-    password: undefined
-  };
+  constructor(private route: ActivatedRoute, private userService: UserService) {
+  }
+
+
+  ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      this.userService.fetchUser(params['id']).subscribe((user: User) => {
+        this.mockedUser = {
+          ...user,
+          workoutData: WORKOUT_DATA
+        };
+        if (user !== undefined) this.userIsLoaded = true;
+      })
+    });
+  }
 
   dateClass = (date: Date): MatCalendarCellCssClasses => {
     return calculateHighlightedUserWorkouts(date, this.mockedUser?.workoutData?.completedWorkouts);

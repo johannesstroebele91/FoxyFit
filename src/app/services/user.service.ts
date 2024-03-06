@@ -8,7 +8,7 @@ interface ResponseData {
 }
 
 const DOMAIN = 'https://foxy-fit-default-rtdb.europe-west1.firebasedatabase.app';
-const USER_PATH = '/users.json';
+const USER_PATH = '/users';
 
 
 @Injectable({
@@ -22,12 +22,12 @@ export class UserService {
   createNewUser(user: User): Observable<{ name: string }> {
     return this.http.post<{
       name: string;
-    }>(DOMAIN + USER_PATH, user);
+    }>(DOMAIN + USER_PATH + '.json', user);
   }
 
 
   fetchUsers(): Observable<User[]> {
-    return this.http.get<ResponseData>(DOMAIN + USER_PATH).pipe(
+    return this.http.get<ResponseData>(DOMAIN + USER_PATH + '.json').pipe(
       map((responseData: ResponseData) => {
           const users: User[] = [];
           for (const key in responseData) {
@@ -39,5 +39,9 @@ export class UserService {
         }
       )
     )
+  }
+
+  fetchUser(id: string): Observable<User> {
+    return this.http.get<User>(`${DOMAIN}${USER_PATH}/${id}.json`);
   }
 }

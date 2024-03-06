@@ -5,45 +5,7 @@ import {User} from "../models";
 import {MatButton} from "@angular/material/button";
 import {Router, RouterLink} from "@angular/router";
 import {calculateHighlightedUserWorkouts} from "../shared/utils";
-
-
-/**
- * TODO delete later when users can add workouts by themselves
- * Generates an array of random dates distributed across the current month,
- * the last month, and the month before the last month.
- * @returns An array of Date objects representing the randomly generated dates.
- */
-function createDates(): Date[] {
-  const today = new Date();
-  const dates: Date[] = [];
-  const months = [today.getMonth(), today.getMonth() - 1, today.getMonth() - 2];
-
-  // Calculate the number of dates to generate for each month
-  const datesPerMonth = [5, 5, 5];
-
-  // Iterate through each month
-  for (let i = 0; i < months.length; i++) {
-    const year = today.getFullYear();
-    const month = months[i];
-    const daysInMonth = new Date(year, month + 1, 0).getDate(); // Get the number of days in the month
-
-    // Generate the specified number of dates for the current month
-    for (let j = 0; j < datesPerMonth[i]; j++) {
-      // Generate a random day within the month
-      const randomDay = Math.floor(Math.random() * daysInMonth) + 1;
-
-      // If it's the current month, ensure that the date is not later than today
-      if (i === 0 && month === today.getMonth() && randomDay > today.getDate()) {
-        continue;
-      }
-
-      dates.push(new Date(year, month, randomDay));
-    }
-  }
-
-  return dates;
-}
-
+import {WORKOUT_DATA} from "../shared/mock-data";
 
 @Component({
   selector: 'app-user-workouts',
@@ -53,9 +15,9 @@ function createDates(): Date[] {
       display: none;
     }
 
-
     ::ng-deep .workout-day {
-      background-color: #a0e992 !important;
+      background-color: #b6eea7 !important;
+      border-radius: 60px;
     }
 
     .row-flex {
@@ -80,7 +42,7 @@ function createDates(): Date[] {
     <mat-card style=" width: 600px; margin: 20px auto">
       <mat-card-header style="display: flex; justify-content: space-between; margin: 15px 0 10px 0">
         <mat-card-title>{{ mockedUser?.name }} ({{ mockedUser?.workoutData?.goalPerWeek }}x per week)</mat-card-title>
-        <button mat-raised-button (click)="navigateToDetailPage()">View</button>
+        <button mat-raised-button (click)="navigateToDetailPage(mockedUser?.id)">View</button>
       </mat-card-header>
       <mat-card-content class="row-flex">
         <!-- Month Before Last Month -->
@@ -111,10 +73,7 @@ export class UserWorkoutsComponent implements OnInit {
     // TODO let users insert their workoutData later by themselves instead of populating it with mock data
     this.mockedUser = {
       ...this.user,
-      workoutData: {
-        goalPerWeek: Math.floor(Math.random() * 4) + 1,
-        completedWorkouts: createDates()
-      }
+      workoutData: WORKOUT_DATA
     };
   }
 
@@ -122,8 +81,7 @@ export class UserWorkoutsComponent implements OnInit {
     return calculateHighlightedUserWorkouts(date, this.mockedUser?.workoutData?.completedWorkouts);
   };
 
-  navigateToDetailPage() {
-    this.router.navigate(['/detail'])
-
+  navigateToDetailPage(id: string | undefined) {
+    this.router.navigate(['/detail'], {queryParams: {id: id}});
   }
 }

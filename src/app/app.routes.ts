@@ -8,7 +8,7 @@ import {DetailUserComponent} from "./components/detail-user.component";
 export const routes: Routes = [
   {path: '', component: LandingComponent, pathMatch: 'full'},
   {path: 'register', component: RegisterComponent},
-  {path: 'detail', component: DetailUserComponent, canActivate: [isUserLoggedInGuard]},
   {path: 'home', component: HomeComponent, canActivate: [isUserLoggedInGuard]},
+  {path: 'detail', component: DetailUserComponent, canActivate: [isUserLoggedInGuard]},
   {path: '**', redirectTo: '/home'},
 ];
