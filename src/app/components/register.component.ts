@@ -41,7 +41,7 @@ import {UserService} from "../services/user.service";
     RouterLink,
   ],
   template: `
-    <mat-card style="padding: 30px 12px; text-align: center; width: 450px; margin: 0 auto;">
+    <mat-card style="padding: 30px 12px; text-align: center; width: 600px; margin: 0 auto;">
       <mat-card-header style="display: block;">
         <mat-card-title style=" font-size: 36px">
           <button mat-icon-button color="primary" routerLink="" aria-label="Go back to login page">

@@ -4,6 +4,7 @@ import {MatCard, MatCardContent, MatCardHeader, MatCardTitle} from "@angular/mat
 import {User} from "../models";
 import {MatButton} from "@angular/material/button";
 import {Router, RouterLink} from "@angular/router";
+import {calculateHighlightedUserWorkouts} from "../shared/utils";
 
 
 /**
@@ -52,10 +53,6 @@ function createDates(): Date[] {
       display: none;
     }
 
-    .custom-card {
-      width: 630px;
-      margin: 10px 0;
-    }
 
     ::ng-deep .workout-day {
       background-color: #a0e992 !important;
@@ -80,9 +77,9 @@ function createDates(): Date[] {
     RouterLink
   ],
   template: `
-    <mat-card class="custom-card">
+    <mat-card style=" width: 600px; margin: 20px auto">
       <mat-card-header style="display: flex; justify-content: space-between; margin: 15px 0 10px 0">
-        <mat-card-title>{{ mockedUser?.name }} ({{ mockedUser?.workoutData?.goalPerWeek }}x pro Woche)</mat-card-title>
+        <mat-card-title>{{ mockedUser?.name }} ({{ mockedUser?.workoutData?.goalPerWeek }}x per week)</mat-card-title>
         <button mat-raised-button (click)="navigateToDetailPage()">View</button>
       </mat-card-header>
       <mat-card-content class="row-flex">
@@ -122,12 +119,7 @@ export class UserWorkoutsComponent implements OnInit {
   }
 
   dateClass = (date: Date): MatCalendarCellCssClasses => {
-    const highlightDate = this.mockedUser?.workoutData?.completedWorkouts?.some(completedWorkoutAsDay =>
-      completedWorkoutAsDay.getDate() === date.getDate() &&
-      completedWorkoutAsDay.getMonth() === date.getMonth() &&
-      completedWorkoutAsDay.getFullYear() === date.getFullYear());
-
-    return highlightDate ? 'workout-day' : '';
+    return calculateHighlightedUserWorkouts(date, this.mockedUser?.workoutData?.completedWorkouts);
   };
 
   navigateToDetailPage() {
