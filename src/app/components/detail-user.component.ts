@@ -44,13 +44,14 @@ import {WORKOUT_DATA} from "../shared/mock-data";
     }
   `],
   template: `
-    <div style="width: 600px; margin: 20px auto 60px auto;">
+    <mat-spinner *ngIf="!mockedUser" style="margin: 0 auto"></mat-spinner>
+    <div *ngIf="mockedUser" style="width: 600px; margin: 20px auto; padding-bottom: 60px">
       <div style="display: flex; flex-direction: row; align-items: center; padding-bottom: 18px">
         <button mat-icon-button color="primary" routerLink="/home" aria-label="Go back to home page"
                 style="position: relative; ">
           <mat-icon>arrow_back</mat-icon>
         </button>
-        <h1 style="margin: 0">{{ mockedUser?.name }}</h1>
+        <h1 style="margin: 0">{{ mockedUser.name }}</h1>
       </div>
 
       <mat-card style="padding: 12px 0; margin-bottom: 30px">
@@ -61,7 +62,7 @@ import {WORKOUT_DATA} from "../shared/mock-data";
         <mat-card-content>
           <ul>
             <li style="padding-bottom: 6px">Your goal per week: <b
-              style="padding-left: 6px">{{ mockedUser?.workoutData?.goalPerWeek }}</b></li>
+              style="padding-left: 6px">{{ mockedUser.workoutData?.goalPerWeek }}</b></li>
             <!-- TODO fix later with dynamic data-->
             <li style="padding-bottom: 6px">1 from 3 workouts done for this week</li>
             <!-- TODO fix later with dynamic data-->
@@ -114,7 +115,8 @@ import {WORKOUT_DATA} from "../shared/mock-data";
           <button mat-raised-button (click)="changeWorkoutGoal()">Add workout</button>
         </mat-card-header>
         <mat-card-content *ngIf="userIsLoaded">
-          <mat-calendar [selected]="selectedDate" [dateClass]="dateClass"></mat-calendar>
+          <mat-calendar [selected]="selectedDate" [dateClass]="dateClass"
+                        style="width: 500px; margin: 0 auto; height: 550px;"></mat-calendar>
         </mat-card-content>
       </mat-card>
     </div>
@@ -131,13 +133,19 @@ export class DetailUserComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      this.userService.fetchUser(params['id']).subscribe((user: User) => {
-        this.mockedUser = {
-          ...user,
-          workoutData: WORKOUT_DATA
-        };
-        if (user !== undefined) this.userIsLoaded = true;
-      })
+      this.userService.fetchUser(params['id']).subscribe({
+          next: (user: User) => {
+            this.mockedUser = {
+              ...user,
+              workoutData: WORKOUT_DATA
+            };
+            if (user !== undefined) this.userIsLoaded = true;
+          },
+          error: (error) => {
+            console.log('Error loading user' + error.errorMessage)
+          }
+        }
+      )
     });
   }
 

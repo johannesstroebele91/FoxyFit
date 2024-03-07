@@ -98,18 +98,22 @@ export class LandingComponent {
       this.authService.login({
         email: this.loginForm.value.email,
         password: this.loginForm.value.password
-      }).then(response => {
-        if (response.loginAllowed) {
-          this.router.navigate(['/home'])
-        } else {
-          if (response.errorMessage) {
-            this.errorMessage = response.errorMessage;
+      }).subscribe({
+        next: (response) => {
+          if (response.loginAllowed) {
+            this.router.navigate(['/home']);
+          } else {
+            if (response.errorMessage) {
+              this.errorMessage = response.errorMessage;
+            }
           }
+        },
+        error: (error) => {
+          console.error('Error logging in:', error);
         }
-      })
+      });
     }
   }
-
 
   getErrorMessage(formControl: FormControl) {
     if (formControl.hasError('required')) {

@@ -41,7 +41,7 @@ import {UserService} from "../services/user.service";
     RouterLink,
   ],
   template: `
-    <mat-card style="padding: 30px 12px; text-align: center; width: 600px; margin: 0 auto;">
+    <mat-card style="padding: 30px 12px; text-align: center; width: 500px; margin: 0 auto;">
       <mat-card-header style="display: block;">
         <mat-card-title style=" font-size: 36px">
           <button mat-icon-button color="primary" routerLink="" aria-label="Go back to login page">
@@ -123,17 +123,28 @@ export class RegisterComponent {
         name: this.signupForm.value.name,
         email: this.signupForm.value.email,
         password: this.signupForm.value.password
-      }).subscribe((responseData: { name: string; }) => {
-        console.log('User was created with this ID: ' + responseData.name)
-        this.authService.login({
-          email: this.signupForm.value.email,
-          password: this.signupForm.value.password
-        }).then(response => {
-          if (response) {
-            this.router.navigate(['/home'])
-          }
-        })
-      })
+      }).subscribe({
+        next: (responseData: { name: string }) => {
+          console.log('User was created with this ID: ' + responseData.name);
+
+          this.authService.login({
+            email: this.signupForm.value.email,
+            password: this.signupForm.value.password
+          }).subscribe({
+            next: (response) => {
+              if (response.loginAllowed) {
+                this.router.navigate(['/home']);
+              }
+            },
+            error: (error) => {
+              console.error('Error logging in:', error);
+            }
+          });
+        },
+        error: (error) => {
+          console.error('Error creating user:', error);
+        }
+      });
     }
   }
 

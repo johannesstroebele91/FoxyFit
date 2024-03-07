@@ -7,11 +7,15 @@ import {RouterLink} from "@angular/router";
 import {UserWorkoutsComponent} from "./user-workouts.component";
 import {UserService} from "../services/user.service";
 import {User} from "../models";
+import {MatProgressSpinner} from "@angular/material/progress-spinner";
 
 @Component({
   selector: 'app-home', standalone: true,
   template: `
-    <app-user-workouts *ngFor="let user of loadedUsers" [user]="user"></app-user-workouts>
+    <mat-spinner *ngIf="!loadedUsers" style="margin: 0 auto"></mat-spinner>
+    <div *ngIf="loadedUsers">
+      <app-user-workouts *ngFor="let user of loadedUsers" [user]="user"></app-user-workouts>
+    </div>
   `,
   imports: [
     MatCard,
@@ -23,7 +27,8 @@ import {User} from "../models";
     NgIf,
     RouterLink,
     UserWorkoutsComponent,
-    NgForOf
+    NgForOf,
+    MatProgressSpinner
   ]
 })
 export class HomeComponent implements OnInit {
@@ -38,8 +43,7 @@ export class HomeComponent implements OnInit {
         this.loadedUsers = users;
       },
       error: (error) => {
-        console.log('Error loading users' + this.loadedUsers)
-        console.log(error.errorMessage)
+        console.log('Error loading user' + error.errorMessage)
       }
     });
   }
