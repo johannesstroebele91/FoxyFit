@@ -1,6 +1,6 @@
-import {inject} from "@angular/core";
-import {AuthService} from "./auth.service";
-import {Router} from "@angular/router";
+import { inject } from '@angular/core';
+import { AuthService } from './auth.service';
+import { Router } from '@angular/router';
 
 export const isUserLoggedInGuard = async () => {
   const authService = inject(AuthService);
@@ -9,10 +9,5 @@ export const isUserLoggedInGuard = async () => {
   // Wait for the isAuthenticated promise to resolve
   const authenticated = authService.isAuthenticated();
 
-  if (authenticated) {
-    return true;
-  } else {
-    await router.navigate(['/']);
-    return false;
-  }
+  return authenticated || (router.navigate(['/']), false);
 };

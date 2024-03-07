@@ -33,8 +33,7 @@ import {AuthService} from "./services/auth.service";
 export class AppComponent {
   title = 'FoxyFit';
 
-  constructor(private router: Router, private authService: AuthService) {
-  }
+  constructor(private router: Router, private authService: AuthService) {}
 
   isNotOnLandingOrRegisterPage(): boolean {
     const isOnLandingPage = this.router.url !== '/';
