@@ -1,18 +1,16 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { LoginUser } from '../models';
 import { UserService } from './user.service';
 
-const FAKE_TOKEN = 'FAKE_TOKEN';
+const SESSION_TOKEN = crypto.randomUUID();
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private token: string | null = null;
-
-  constructor(private userService: UserService) {}
+  userService = inject(UserService);
 
   isAuthenticated(): boolean {
     return !!sessionStorage.getItem('token');
@@ -23,9 +21,7 @@ export class AuthService {
   ): Observable<{ loginAllowed: boolean; errorMessage?: string }> {
     const { email, password } = user;
 
-    // Simulate token authentication
-    sessionStorage.setItem('token', FAKE_TOKEN);
-    this.token = sessionStorage.getItem('token');
+    sessionStorage.setItem('token', SESSION_TOKEN); // Authentication simulation // TODO: Add real authentication
 
     return this.userService.fetchUsers().pipe(
       map((users) => {
@@ -33,7 +29,10 @@ export class AuthService {
           (loadedUser) =>
             loadedUser.email === email && loadedUser.password === password
         );
-        if (userInsertedValidCreds && this.token === FAKE_TOKEN) {
+        if (
+          userInsertedValidCreds &&
+          sessionStorage.getItem('token') === SESSION_TOKEN
+        ) {
           return { loginAllowed: true };
         } else {
           console.log('Error logging in');
@@ -52,8 +51,6 @@ export class AuthService {
   }
 
   logout(): void {
-    // Clear the token on logout
-    this.token = null;
     sessionStorage.removeItem('token');
   }
 }

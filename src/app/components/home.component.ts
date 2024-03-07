@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {
   MatCard,
   MatCardContent,
@@ -19,13 +19,12 @@ import { Observable, catchError, of } from 'rxjs';
   selector: 'app-home',
   standalone: true,
   template: `
-    <div *ngIf="loadedUsers$ | async as loadedUsers; else loading">
-      <app-user-workouts *ngFor="let user of loadedUsers" [user]="user" />
-      <div *ngIf="error" style="color: red;">Error loading users</div>
-    </div>
-    <ng-template #loading>
-      <mat-spinner style="margin: 0 auto"></mat-spinner>
-    </ng-template>
+    @if(users$ | async; as users) {
+    <app-user-workouts *ngFor="let user of users" [user]="user" />
+    <div *ngIf="error" style="color: red;">Error loading users</div>
+    } @else {
+    <mat-spinner style="margin: 0 auto"></mat-spinner>
+    }
   `,
   imports: [
     CommonModule,
@@ -43,12 +42,11 @@ import { Observable, catchError, of } from 'rxjs';
   ],
 })
 export class HomeComponent {
-  loadedUsers: User[] | undefined;
   error: boolean = false;
 
-  constructor(private userService: UserService) {}
+  userService = inject(UserService)
 
-  loadedUsers$: Observable<User[] | undefined> = this.userService
+  users$: Observable<User[] | undefined> = this.userService
     .fetchUsers()
     .pipe(
       catchError((err) => {

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { CreateUser, User } from '../models';
 import { HttpClient } from '@angular/common/http';
@@ -15,7 +15,7 @@ const USER_PATH = '/users';
   providedIn: 'root', // This makes AuthService available throughout the application
 })
 export class UserService {
-  constructor(private http: HttpClient) {}
+  http = inject(HttpClient);
 
   createNewUser(user: CreateUser): Observable<{ name: string }> {
     return this.http.post<{

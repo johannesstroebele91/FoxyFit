@@ -7,7 +7,7 @@ import {
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatFormField, MatFormFieldModule } from '@angular/material/form-field';
 import { MatInput, MatInputModule } from '@angular/material/input';
 import { MatButtonModule, MatIconButton } from '@angular/material/button';
@@ -68,7 +68,9 @@ import {
                 name="email"
                 autocomplete="email"
               />
-              <mat-error *ngIf="email.invalid">{{ getErrorMessage }}</mat-error>
+              <mat-error *ngIf="email.invalid">{{
+                getErrorMessage(email)
+              }}</mat-error>
             </mat-form-field>
 
             <mat-form-field style="display: block">
@@ -92,7 +94,7 @@ import {
                 }}</mat-icon>
               </button>
               <mat-error *ngIf="password.invalid">{{
-                getErrorMessage
+                getErrorMessage(password)
               }}</mat-error>
             </mat-form-field>
           </div>
@@ -126,7 +128,8 @@ export class LandingComponent {
     password: new FormControl('', Validators.required),
   });
 
-  constructor(private router: Router, private authService: AuthService) {}
+  router = inject(Router);
+  authService = inject(AuthService);
 
   get email(): any {
     return this.loginForm.get('email');
@@ -134,13 +137,6 @@ export class LandingComponent {
 
   get password(): any {
     return this.loginForm.get('password');
-  }
-
-  get getErrorMessage(): string {
-    if (this.email.hasError('required')) {
-      return 'You must enter a value';
-    }
-    return this.email.hasError('email') && 'Not a valid email';
   }
 
   onSubmit() {
@@ -169,5 +165,12 @@ export class LandingComponent {
           },
         });
     }
+  }
+  getErrorMessage(formControl: FormControl) {
+    if (formControl.hasError('required')) {
+      return 'You must enter a value';
+    }
+
+    return this.email.hasError('email') && 'Not a valid email';
   }
 }

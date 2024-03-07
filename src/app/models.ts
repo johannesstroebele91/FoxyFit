@@ -1,19 +1,14 @@
-export interface CreateUser {
-  name: string;
-  email: string;
-  password: string;
-}
-
 export interface LoginUser {
   email: string;
   password: string;
 }
 
-export interface User {
-  id: string;
+export interface CreateUser extends LoginUser {
   name: string;
-  email: string | null | undefined;
-  password: string | null | undefined;
+}
+
+export interface User extends CreateUser {
+  id: string;
   workoutData?: WorkoutData;
 }
 
