@@ -1,46 +1,52 @@
-import {Injectable} from '@angular/core';
-import {Observable, of} from 'rxjs';
-import {catchError, map} from 'rxjs/operators';
-import {User} from '../models';
-import {UserService} from './user.service';
+import { Injectable } from '@angular/core';
+import { Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { LoginUser } from '../models';
+import { UserService } from './user.service';
 
 const FAKE_TOKEN = 'FAKE_TOKEN';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private token: string | null = null;
 
-  constructor(private userService: UserService) {
-  }
+  constructor(private userService: UserService) {}
 
   isAuthenticated(): boolean {
-    return !!this.token;
+    return !!sessionStorage.getItem('token');
   }
 
-  login(user: User): Observable<{ loginAllowed: boolean; errorMessage?: string }> {
-    const {email, password} = user;
+  login(
+    user: LoginUser
+  ): Observable<{ loginAllowed: boolean; errorMessage?: string }> {
+    const { email, password } = user;
 
     // Simulate token authentication
-    this.token = FAKE_TOKEN;
+    sessionStorage.setItem('token', FAKE_TOKEN);
+    this.token = sessionStorage.getItem('token');
 
     return this.userService.fetchUsers().pipe(
-      map(users => {
-        const userInsertedValidCreds = users.some(loadedUser => loadedUser.email === email && loadedUser.password === password);
+      map((users) => {
+        const userInsertedValidCreds = users.some(
+          (loadedUser) =>
+            loadedUser.email === email && loadedUser.password === password
+        );
         if (userInsertedValidCreds && this.token === FAKE_TOKEN) {
-          return {loginAllowed: true};
+          return { loginAllowed: true };
         } else {
           console.log('Error logging in');
           return {
             loginAllowed: false,
-            errorMessage: 'Invalid email, password, or token. Please try again or register a new user via the link below.'
+            errorMessage:
+              'Invalid email, password, or token. Please try again or register a new user via the link below.',
           };
         }
       }),
-      catchError(error => {
+      catchError((error) => {
         console.log('Error logging in:', error);
-        return of({loginAllowed: false, errorMessage: error.message});
+        return of({ loginAllowed: false, errorMessage: error.message });
       })
     );
   }
@@ -48,5 +54,6 @@ export class AuthService {
   logout(): void {
     // Clear the token on logout
     this.token = null;
+    sessionStorage.removeItem('token');
   }
 }

@@ -128,8 +128,8 @@ export class RegisterComponent {
           console.log('User was created with this ID: ' + responseData.name);
 
           this.authService.login({
-            email: this.signupForm.value.email,
-            password: this.signupForm.value.password
+            email: this.signupForm.value.email!,
+            password: this.signupForm.value.password!
           }).subscribe({
             next: (response) => {
               if (response.loginAllowed) {
