@@ -7,7 +7,7 @@ import {
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-import { Component, inject } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { MatFormField, MatFormFieldModule } from '@angular/material/form-field';
 import { MatInput, MatInputModule } from '@angular/material/input';
 import { MatButtonModule, MatIconButton } from '@angular/material/button';
@@ -20,7 +20,7 @@ import {
   MatCardHeader,
   MatCardModule,
 } from '@angular/material/card';
-
+import {Subscription} from "rxjs";
 @Component({
   selector: 'app-landing',
   imports: [
@@ -83,6 +83,7 @@ import {
                 autocomplete="current-password"
               />
               <button
+                type="button"
                 mat-icon-button
                 matSuffix
                 (click)="hidePasswordInput = !hidePasswordInput"
@@ -120,13 +121,14 @@ import {
   `,
   standalone: true,
 })
-export class LandingComponent {
+export class LandingComponent implements OnDestroy {
   errorMessage: string = '';
   hidePasswordInput = true;
   loginForm = new FormGroup({
     email: new FormControl('', [Validators.required, Validators.email]),
     password: new FormControl('', Validators.required),
   });
+  private authServiceSub: Subscription | undefined;
 
   router = inject(Router);
   authService = inject(AuthService);
@@ -172,5 +174,9 @@ export class LandingComponent {
     }
 
     return this.email.hasError('email') && 'Not a valid email';
+  }
+
+  ngOnDestroy(): void {
+    this.authServiceSub?.unsubscribe()
   }
 }

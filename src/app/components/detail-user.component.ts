@@ -1,4 +1,4 @@
-import {Component, OnInit} from "@angular/core";
+import {Component, OnDestroy, OnInit} from "@angular/core";
 import {MatCard, MatCardContent, MatCardHeader, MatCardTitle} from "@angular/material/card";
 import {User} from "../models";
 import {MatButton, MatIconButton} from "@angular/material/button";
@@ -10,6 +10,7 @@ import {ActivatedRoute, RouterLink} from "@angular/router";
 import {UserService} from "../services/user.service";
 import {NgIf} from "@angular/common";
 import {WORKOUT_DATA} from "../shared/mock-data";
+import {Subscription} from "rxjs";
 
 
 @Component({
@@ -122,18 +123,18 @@ import {WORKOUT_DATA} from "../shared/mock-data";
     </div>
   `
 })
-export class DetailUserComponent implements OnInit {
+export class DetailUserComponent implements OnInit, OnDestroy {
   mockedUser: User | undefined;
   selectedDate!: Date;
   userIsLoaded = false;
+  private userFetchSubscription: Subscription | undefined;
 
   constructor(private route: ActivatedRoute, private userService: UserService) {
   }
 
-
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      this.userService.fetchUser(params['id']).subscribe({
+      this.userFetchSubscription = this.userService.fetchUser(params['id']).subscribe({
           next: (user: User) => {
             this.mockedUser = {
               ...user,
@@ -155,5 +156,9 @@ export class DetailUserComponent implements OnInit {
 
   changeWorkoutGoal() {
 
+  }
+
+  ngOnDestroy(): void {
+    this.userFetchSubscription?.unsubscribe()
   }
 }
