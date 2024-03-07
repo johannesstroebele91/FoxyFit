@@ -7,7 +7,7 @@ export const isUserLoggedInGuard = async () => {
   const router = inject(Router);
 
   // Wait for the isAuthenticated promise to resolve
-  const authenticated = await authService.isAuthenticated();
+  const authenticated = authService.isAuthenticated();
 
   if (authenticated) {
     return true;

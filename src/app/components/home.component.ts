@@ -1,4 +1,4 @@
-import {Component, OnInit} from "@angular/core";
+import {Component, OnDestroy, OnInit} from "@angular/core";
 import {MatCard, MatCardContent, MatCardHeader, MatCardTitle} from "@angular/material/card";
 import {MatCalendar} from "@angular/material/datepicker";
 import {MatToolbar} from "@angular/material/toolbar";
@@ -8,6 +8,7 @@ import {UserWorkoutsComponent} from "./user-workouts.component";
 import {UserService} from "../services/user.service";
 import {User} from "../models";
 import {MatProgressSpinner} from "@angular/material/progress-spinner";
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'app-home', standalone: true,
@@ -31,11 +32,13 @@ import {MatProgressSpinner} from "@angular/material/progress-spinner";
     MatProgressSpinner
   ]
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   loadedUsers: User[] | undefined;
+  private usersFetchSub: Subscription | undefined;
 
   constructor(private userService: UserService) {
   }
+
 
   ngOnInit(): void {
     this.userService.fetchUsers().subscribe({
@@ -46,5 +49,9 @@ export class HomeComponent implements OnInit {
         console.log('Error loading user' + error.errorMessage)
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.usersFetchSub?.unsubscribe();
   }
 }

@@ -1,7 +1,7 @@
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {Router, RouterLink} from "@angular/router";
 import {AuthService} from "../services/auth.service";
-import {Component} from "@angular/core";
+import {Component, OnDestroy} from "@angular/core";
 import {MatFormField, MatFormFieldModule} from "@angular/material/form-field";
 import {MatInput, MatInputModule} from "@angular/material/input";
 import {MatButtonModule, MatIconButton} from "@angular/material/button";
@@ -9,6 +9,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {CommonModule} from "@angular/common";
 import {MatOption, MatSelect} from "@angular/material/select";
 import {MatCard, MatCardContent, MatCardHeader, MatCardModule} from "@angular/material/card";
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'app-landing',
@@ -55,7 +56,7 @@ import {MatCard, MatCardContent, MatCardHeader, MatCardModule} from "@angular/ma
               <input matInput formControlName="password" [type]="hide ? 'password' : 'text'" name="password"
                      autocomplete="current-password">
               <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
-                      [attr.aria-pressed]="hide">
+                      [attr.aria-pressed]="hide" type="button">
                 <mat-icon>{{ hide ? 'visibility_off' : 'visibility' }}</mat-icon>
               </button>
               <mat-error *ngIf="password.invalid">{{ getErrorMessage(email) }}</mat-error>
@@ -74,13 +75,14 @@ import {MatCard, MatCardContent, MatCardHeader, MatCardModule} from "@angular/ma
   `,
   standalone: true
 })
-export class LandingComponent {
+export class LandingComponent implements OnDestroy {
   errorMessage: string = '';
   hide = true;
   loginForm = new FormGroup({
     email: new FormControl('', [Validators.required, Validators.email]),
     password: new FormControl('', Validators.required),
   });
+  private authServiceSub: Subscription | undefined;
 
   constructor(private router: Router, private authService: AuthService) {
   }
@@ -121,5 +123,9 @@ export class LandingComponent {
     }
 
     return this.email.hasError('email') && 'Not a valid email';
+  }
+
+  ngOnDestroy(): void {
+    this.authServiceSub?.unsubscribe()
   }
 }
