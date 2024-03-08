@@ -12,6 +12,13 @@ import {NgIf} from "@angular/common";
 import {WORKOUT_DATA} from "../shared/mock-data";
 import {Subscription} from "rxjs";
 
+import {MatDialog,} from '@angular/material/dialog';
+import {AddWorkoutDialog} from "./dialog";
+
+export interface DialogData {
+  animal: 'panda' | 'unicorn' | 'lion';
+}
+
 
 @Component({
   selector: 'app-detail-user',
@@ -58,7 +65,7 @@ import {Subscription} from "rxjs";
       <mat-card style="padding: 12px 0; margin-bottom: 30px">
         <mat-card-header style="display: flex; justify-content: space-between; margin: 15px 0 10px 0">
           <mat-card-title>Workout goal</mat-card-title>
-          <button mat-raised-button (click)="changeWorkoutGoal()">Edit</button>
+          <button mat-raised-button (click)="openDialog()">Edit</button>
         </mat-card-header>
         <mat-card-content>
           <ul>
@@ -113,7 +120,7 @@ import {Subscription} from "rxjs";
       <mat-card>
         <mat-card-header style="display: flex; justify-content: space-between; margin: 15px 0 10px 0">
           <mat-card-title>Workouts</mat-card-title>
-          <button mat-raised-button (click)="changeWorkoutGoal()">Add workout</button>
+          <button mat-raised-button (click)="openDialog()">Add workout</button>
         </mat-card-header>
         <mat-card-content *ngIf="userIsLoaded">
           <mat-calendar [selected]="selectedDate" [dateClass]="dateClass"
@@ -129,7 +136,7 @@ export class DetailUserComponent implements OnInit, OnDestroy {
   userIsLoaded = false;
   private userFetchSubscription: Subscription | undefined;
 
-  constructor(private route: ActivatedRoute, private userService: UserService) {
+  constructor(private route: ActivatedRoute, private userService: UserService, public dialog: MatDialog) {
   }
 
   ngOnInit(): void {
@@ -154,8 +161,16 @@ export class DetailUserComponent implements OnInit, OnDestroy {
     return calculateHighlightedUserWorkouts(date, this.mockedUser?.workoutData?.completedWorkouts);
   };
 
-  changeWorkoutGoal() {
-
+  openDialog() {
+    const dialogRef = this.dialog.open(AddWorkoutDialog, {
+      data: {
+        animal: 'panda',
+      },
+    });
+    // TODO delete maybe later if not needed
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+    });
   }
 
   ngOnDestroy(): void {

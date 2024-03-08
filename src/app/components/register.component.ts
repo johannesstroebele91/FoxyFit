@@ -17,6 +17,7 @@ import {Router, RouterLink} from "@angular/router";
 import {HttpClient} from "@angular/common/http";
 import {AuthService} from "../services/auth.service";
 import {UserService} from "../services/user.service";
+import {ERROR_MESSAGE} from "../shared/mock-data";
 
 @Component({
   selector: 'app-register',
@@ -58,7 +59,7 @@ import {UserService} from "../services/user.service";
           <span>Registration</span>
         </mat-card-title>
         <mat-card-subtitle style="margin: 30px auto; font-size: 24px;"
-          >Sign up here to continue
+        >Sign up here to continue
         </mat-card-subtitle>
       </mat-card-header>
 
@@ -74,8 +75,9 @@ import {UserService} from "../services/user.service";
                 name="name"
               />
               <mat-error *ngIf="name.invalid">{{
-                getErrorMessage(name)
-              }}</mat-error>
+                  ERROR_MESSAGE
+                }}
+              </mat-error>
             </mat-form-field>
 
             <mat-form-field style="display: block">
@@ -88,8 +90,9 @@ import {UserService} from "../services/user.service";
                 autocomplete="off"
               />
               <mat-error *ngIf="email.invalid">{{
-                getErrorMessage(email)
-              }}</mat-error>
+                  ERROR_MESSAGE
+                }}
+              </mat-error>
             </mat-form-field>
 
             <mat-form-field style="display: block">
@@ -109,12 +112,14 @@ import {UserService} from "../services/user.service";
                 [attr.aria-pressed]="hide"
               >
                 <mat-icon>{{
-                  hide ? 'visibility_off' : 'visibility'
-                }}</mat-icon>
+                    hide ? 'visibility_off' : 'visibility'
+                  }}
+                </mat-icon>
               </button>
               <mat-error *ngIf="password.invalid">{{
-                getErrorMessage(password)
-              }}</mat-error>
+                  ERROR_MESSAGE
+                }}
+              </mat-error>
             </mat-form-field>
           </div>
 
@@ -130,7 +135,7 @@ import {UserService} from "../services/user.service";
       </mat-card-content>
       <mat-card-footer>
         <span style="margin-top: 20px"
-          >If you are already registered, you can log in
+        >If you are already registered, you can log in
           <a routerLink="register">here!</a></span
         >
       </mat-card-footer>
@@ -149,6 +154,7 @@ export class RegisterComponent {
   router = inject(Router);
   authService = inject(AuthService);
   userService = inject(UserService);
+  protected readonly ERROR_MESSAGE = ERROR_MESSAGE;
 
   get name(): any {
     return this.signupForm.get('name');
@@ -199,13 +205,5 @@ export class RegisterComponent {
           },
         });
     }
-  }
-
-  getErrorMessage(formControl: FormControl) {
-    if (formControl.hasError('required')) {
-      return 'You must enter a value';
-    }
-
-    return this.email.hasError('email') && 'Not a valid email';
   }
 }

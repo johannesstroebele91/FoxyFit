@@ -1,26 +1,17 @@
-import {
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '../services/auth.service';
-import { Component, OnDestroy, inject } from '@angular/core';
-import { MatFormField, MatFormFieldModule } from '@angular/material/form-field';
-import { MatInput, MatInputModule } from '@angular/material/input';
-import { MatButtonModule, MatIconButton } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { CommonModule } from '@angular/common';
-import { MatOption, MatSelect } from '@angular/material/select';
-import {
-  MatCard,
-  MatCardContent,
-  MatCardHeader,
-  MatCardModule,
-} from '@angular/material/card';
+import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators,} from '@angular/forms';
+import {Router, RouterLink} from '@angular/router';
+import {AuthService} from '../services/auth.service';
+import {Component, inject, OnDestroy} from '@angular/core';
+import {MatFormField, MatFormFieldModule} from '@angular/material/form-field';
+import {MatInput, MatInputModule} from '@angular/material/input';
+import {MatButtonModule, MatIconButton} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {CommonModule} from '@angular/common';
+import {MatOption, MatSelect} from '@angular/material/select';
+import {MatCard, MatCardContent, MatCardHeader, MatCardModule,} from '@angular/material/card';
 import {Subscription} from "rxjs";
+import {ERROR_MESSAGE} from "../shared/mock-data";
+
 @Component({
   selector: 'app-landing',
   imports: [
@@ -47,9 +38,9 @@ import {Subscription} from "rxjs";
       style="padding: 30px 12px; text-align: center; width: 500px; margin: 0 auto;"
     >
       <mat-card-header style="display: block;">
-        <mat-card-title style=" font-size: 36px">Welcome! </mat-card-title>
+        <mat-card-title style=" font-size: 36px">Welcome!</mat-card-title>
         <mat-card-subtitle style="margin: 30px auto; font-size: 24px;"
-          >Log in to continue
+        >Log in to continue
         </mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
@@ -69,8 +60,9 @@ import {Subscription} from "rxjs";
                 autocomplete="email"
               />
               <mat-error *ngIf="email.invalid">{{
-                getErrorMessage(email)
-              }}</mat-error>
+                  ERROR_MESSAGE
+                }}
+              </mat-error>
             </mat-form-field>
 
             <mat-form-field style="display: block">
@@ -91,12 +83,14 @@ import {Subscription} from "rxjs";
                 [attr.aria-pressed]="hidePasswordInput"
               >
                 <mat-icon>{{
-                  hidePasswordInput ? 'visibility_off' : 'visibility'
-                }}</mat-icon>
+                    hidePasswordInput ? 'visibility_off' : 'visibility'
+                  }}
+                </mat-icon>
               </button>
               <mat-error *ngIf="password.invalid">{{
-                getErrorMessage(password)
-              }}</mat-error>
+                  ERROR_MESSAGE
+                }}
+              </mat-error>
             </mat-form-field>
           </div>
           <button
@@ -110,12 +104,12 @@ import {Subscription} from "rxjs";
         </form>
       </mat-card-content>
       <mat-error *ngIf="errorMessage" style="margin-top: 10px"
-        >{{ errorMessage }}
+      >{{ ERROR_MESSAGE }}
       </mat-error>
       <mat-card-footer
-        ><p style="margin: 20px auto 0;">
-          Not a member yet? <a routerLink="register">Register now!</a>
-        </p>
+      ><p style="margin: 20px auto 0;">
+        Not a member yet? <a routerLink="register">Register now!</a>
+      </p>
       </mat-card-footer>
     </mat-card>
   `,
@@ -128,10 +122,10 @@ export class LandingComponent implements OnDestroy {
     email: new FormControl('', [Validators.required, Validators.email]),
     password: new FormControl('', Validators.required),
   });
-  private authServiceSub: Subscription | undefined;
-
   router = inject(Router);
   authService = inject(AuthService);
+  protected readonly ERROR_MESSAGE = ERROR_MESSAGE;
+  private authServiceSub: Subscription | undefined;
 
   get email(): any {
     return this.loginForm.get('email');
@@ -167,13 +161,6 @@ export class LandingComponent implements OnDestroy {
           },
         });
     }
-  }
-  getErrorMessage(formControl: FormControl) {
-    if (formControl.hasError('required')) {
-      return 'You must enter a value';
-    }
-
-    return this.email.hasError('email') && 'Not a valid email';
   }
 
   ngOnDestroy(): void {
