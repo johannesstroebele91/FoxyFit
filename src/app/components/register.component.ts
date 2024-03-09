@@ -179,6 +179,7 @@ export class RegisterComponent {
           name: this.signupForm.value.name,
           email: this.signupForm.value.email,
           password: this.signupForm.value.password,
+          workoutData: {goalPerWeek: 1}
         })
         .subscribe({
           next: (responseData: { name: string }) => {

@@ -5,7 +5,7 @@ import {User} from "../models";
 import {MatButton} from "@angular/material/button";
 import {Router, RouterLink} from "@angular/router";
 import {calculateHighlightedUserWorkouts} from "../shared/utils";
-import {WORKOUT_DATA} from "../shared/mock-data";
+import {COMPLETED_WORKOUTS_MOCKED} from "../shared/mock-data";
 
 @Component({
   selector: 'app-user-workouts',
@@ -73,7 +73,7 @@ export class UserWorkoutsComponent implements OnInit {
     // TODO let users insert their workoutData later by themselves instead of populating it with mock data
     this.mockedUser = {
       ...this.user,
-      workoutData: WORKOUT_DATA
+      workoutData: {goalPerWeek: this.user.workoutData.goalPerWeek, completedWorkouts: COMPLETED_WORKOUTS_MOCKED}
     };
   }
 

@@ -2,18 +2,31 @@ import {Component, OnDestroy, OnInit} from "@angular/core";
 import {MatCard, MatCardContent, MatCardHeader, MatCardTitle} from "@angular/material/card";
 import {User} from "../models";
 import {MatButton, MatIconButton} from "@angular/material/button";
-import {MatCalendar, MatCalendarCellCssClasses} from "@angular/material/datepicker";
+import {
+  MatCalendar,
+  MatCalendarCellCssClasses,
+  MatDatepicker,
+  MatDatepickerActions,
+  MatDatepickerApply,
+  MatDatepickerCancel,
+  MatDatepickerInput,
+  MatDatepickerToggle
+} from "@angular/material/datepicker";
 import {calculateHighlightedUserWorkouts} from "../shared/utils";
 import {MatProgressSpinner} from "@angular/material/progress-spinner";
 import {MatIcon} from "@angular/material/icon";
 import {ActivatedRoute, RouterLink} from "@angular/router";
 import {UserService} from "../services/user.service";
 import {NgIf} from "@angular/common";
-import {WORKOUT_DATA} from "../shared/mock-data";
+import {COMPLETED_WORKOUTS_MOCKED, ERROR_MESSAGE} from "../shared/mock-data";
 import {Subscription} from "rxjs";
 
-import {MatDialog,} from '@angular/material/dialog';
-import {AddWorkoutDialog} from "./dialog";
+import {MatDialog, MatDialogContent, MatDialogTitle,} from '@angular/material/dialog';
+import {AddWorkoutDialog} from "./add-workout-dialog";
+import {FormControl, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
+import {MatError, MatFormField, MatFormFieldModule, MatLabel, MatSuffix} from "@angular/material/form-field";
+import {MatInput, MatInputModule} from "@angular/material/input";
+import {MatOption, MatSelect, MatSelectModule} from "@angular/material/select";
 
 export interface DialogData {
   animal: 'panda' | 'unicorn' | 'lion';
@@ -34,7 +47,27 @@ export interface DialogData {
     MatIcon,
     MatIconButton,
     RouterLink,
-    NgIf
+    NgIf,
+    FormsModule,
+    ReactiveFormsModule,
+    MatFormField,
+    MatInput,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatError,
+    MatLabel,
+    MatSuffix,
+    MatSelect,
+    MatOption,
+    MatDatepickerToggle,
+    MatDatepicker,
+    MatDatepickerActions,
+    MatDatepickerInput,
+    MatDatepickerCancel,
+    MatDatepickerApply,
   ],
   styles: [`
     ::ng-deep .workout-day {
@@ -63,19 +96,25 @@ export interface DialogData {
       </div>
 
       <mat-card style="padding: 12px 0; margin-bottom: 30px">
-        <mat-card-header style="display: flex; justify-content: space-between; margin: 15px 0 10px 0">
+        <mat-card-header style="margin: 15px 0 10px 0">
           <mat-card-title>Workout goal</mat-card-title>
-          <button mat-raised-button (click)="openDialog()">Edit</button>
         </mat-card-header>
         <mat-card-content>
-          <ul>
-            <li style="padding-bottom: 6px">Your goal per week: <b
-              style="padding-left: 6px">{{ mockedUser.workoutData?.goalPerWeek }}</b></li>
-            <!-- TODO fix later with dynamic data-->
-            <li style="padding-bottom: 6px">1 from 3 workouts done for this week</li>
-            <!-- TODO fix later with dynamic data-->
-            <li style="padding-bottom: 18px">Finish your workout today, to stay on track</li>
-          </ul>
+          <mat-form-field style="display: block; width: auto">
+            <mat-form-field>
+              <mat-label>Your weekly workout goal</mat-label>
+              <input type="number" matInput placeholder="Insert goal" name="goalPerWeek"
+                     [formControl]="goalPerWeek" (input)="onGoalPerWeekChange($event)" step="1">
+              <mat-icon matSuffix>mode_edit</mat-icon>
+              <mat-error *ngIf="goalPerWeek.invalid">{{ ERROR_MESSAGE }}</mat-error>
+            </mat-form-field>
+          </mat-form-field>
+          <!-- TODO fix later with dynamic data-->
+          <p style="padding-bottom: 6px">1 from {{ mockedUser.workoutData.goalPerWeek }} workouts done for this
+            week
+          </p>
+          <!-- TODO fix later with dynamic data-->
+          <p style="padding-bottom: 18px">Finish your workout today, to stay on track</p>
         </mat-card-content>
       </mat-card>
 
@@ -134,6 +173,8 @@ export class DetailUserComponent implements OnInit, OnDestroy {
   mockedUser: User | undefined;
   selectedDate!: Date;
   userIsLoaded = false;
+  goalPerWeek = new FormControl(1, Validators.required);
+  protected readonly ERROR_MESSAGE = ERROR_MESSAGE;
   private userFetchSubscription: Subscription | undefined;
 
   constructor(private route: ActivatedRoute, private userService: UserService, public dialog: MatDialog) {
@@ -143,11 +184,13 @@ export class DetailUserComponent implements OnInit, OnDestroy {
     this.route.queryParams.subscribe(params => {
       this.userFetchSubscription = this.userService.fetchUser(params['id']).subscribe({
           next: (user: User) => {
+
             this.mockedUser = {
               ...user,
-              workoutData: WORKOUT_DATA
+              id: params['id'],
+              workoutData: {goalPerWeek: user.workoutData.goalPerWeek, completedWorkouts: COMPLETED_WORKOUTS_MOCKED}
             };
-            if (user !== undefined) this.userIsLoaded = true;
+            if (user) this.userIsLoaded = true;
           },
           error: (error) => {
             console.log('Error loading user' + error.errorMessage)
@@ -175,5 +218,24 @@ export class DetailUserComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.userFetchSubscription?.unsubscribe()
+  }
+
+
+  onGoalPerWeekChange(goalEvent: Event) {
+    const goalPerWeek = (goalEvent?.target as HTMLInputElement).valueAsNumber; // Assuming input type is number
+
+    console.log('goalPerWeek')
+    console.log(goalPerWeek)
+    console.log('this.mockedUser')
+    console.log(this.mockedUser)
+    console.log('this.mockedUser?.id')
+    console.log(this.mockedUser?.id)
+    if (goalPerWeek && this.mockedUser && this.mockedUser.id) {
+      this.userService.updateUserGoalPerWeek(this.mockedUser.id, goalPerWeek)
+        .subscribe({
+          next: () => console.log('Goal per week updated successfully'),
+          error: (error) => console.log(error.message)
+        });
+    }
   }
 }

@@ -5,14 +5,14 @@ export interface LoginUser {
 
 export interface CreateUser extends LoginUser {
   name: string;
+  workoutData: WorkoutData;
 }
 
 export interface User extends CreateUser {
   id: string;
-  workoutData?: WorkoutData;
 }
 
 export interface WorkoutData {
-  goalPerWeek?: number;
+  goalPerWeek: number;
   completedWorkouts?: Date[];
 }

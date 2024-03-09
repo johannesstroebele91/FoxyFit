@@ -1,7 +1,7 @@
-import { inject, Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
-import { CreateUser, User } from '../models';
-import { HttpClient } from '@angular/common/http';
+import {inject, Injectable} from '@angular/core';
+import {map, Observable} from 'rxjs';
+import {CreateUser, User} from '../models';
+import {HttpClient} from '@angular/common/http';
 
 interface ResponseData {
   [key: string]: User;
@@ -29,7 +29,7 @@ export class UserService {
         const users: User[] = [];
         for (const key in responseData) {
           if (responseData.hasOwnProperty(key)) {
-            users.push({ ...responseData[key], id: key });
+            users.push({...responseData[key], id: key});
           }
         }
         return users;
@@ -39,5 +39,10 @@ export class UserService {
 
   fetchUser(id: string): Observable<User> {
     return this.http.get<User>(`${DOMAIN}${USER_PATH}/${id}.json`);
+  }
+
+  updateUserGoalPerWeek(userId: string, goalPerWeek: number): Observable<any> {
+    const userData = {workoutData: {goalPerWeek}};
+    return this.http.patch(`${DOMAIN}${USER_PATH}/${userId}.json`, userData);
   }
 }
