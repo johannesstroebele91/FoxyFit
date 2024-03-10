@@ -18,9 +18,10 @@ export class UserService {
   http = inject(HttpClient);
 
   createNewUser(user: CreateUser): Observable<{ name: string }> {
+    const userWithId = { ...user, id: crypto.randomUUID() };
     return this.http.post<{
       name: string;
-    }>(DOMAIN + USER_PATH + '.json', user);
+    }>(DOMAIN + USER_PATH + '.json', userWithId);
   }
 
   fetchUsers(): Observable<User[]> {
