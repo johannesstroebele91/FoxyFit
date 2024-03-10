@@ -15,9 +15,9 @@ import {MatInput} from "@angular/material/input";
 import {NgIf} from "@angular/common";
 import {Router, RouterLink} from "@angular/router";
 import {HttpClient} from "@angular/common/http";
-import {AuthService} from "../services/auth.service";
-import {UserService} from "../services/user.service";
-import {ERROR_MESSAGE} from "../shared/mock-data";
+import {AuthService} from "../../services/auth.service";
+import {UserService} from "../../services/user.service";
+import {ERROR_MESSAGE} from "../../shared/constants";
 
 @Component({
   selector: 'app-register',

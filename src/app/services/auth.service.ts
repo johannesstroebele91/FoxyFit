@@ -29,7 +29,6 @@ export class AuthService {
           (loadedUser) =>
             loadedUser.email === email && loadedUser.password === password
         );
-        console.log(users)
         if (
           userInsertedValidCreds &&
           sessionStorage.getItem('token') === SESSION_TOKEN

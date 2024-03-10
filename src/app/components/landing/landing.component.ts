@@ -1,6 +1,6 @@
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators,} from '@angular/forms';
 import {Router, RouterLink} from '@angular/router';
-import {AuthService} from '../services/auth.service';
+import {AuthService} from '../../services/auth.service';
 import {Component, inject, OnDestroy} from '@angular/core';
 import {MatFormField, MatFormFieldModule} from '@angular/material/form-field';
 import {MatInput, MatInputModule} from '@angular/material/input';
@@ -10,7 +10,7 @@ import {CommonModule} from '@angular/common';
 import {MatOption, MatSelect} from '@angular/material/select';
 import {MatCard, MatCardContent, MatCardHeader, MatCardModule,} from '@angular/material/card';
 import {Subscription} from "rxjs";
-import {ERROR_MESSAGE} from "../shared/mock-data";
+import {ERROR_MESSAGE} from "../../shared/constants";
 
 @Component({
   selector: 'app-landing',

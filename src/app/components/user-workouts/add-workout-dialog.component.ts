@@ -1,13 +1,13 @@
 import {Component, Inject} from "@angular/core";
 import {MAT_DIALOG_DATA, MatDialogContent, MatDialogRef, MatDialogTitle} from "@angular/material/dialog";
-import {DialogData} from "./detail-user.component";
+import {IAddWorkoutDialogData} from "./user-workouts.component";
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {MatButton, MatIconButton} from "@angular/material/button";
 import {MatError, MatFormField, MatFormFieldModule, MatLabel, MatSuffix} from "@angular/material/form-field";
 import {MatIcon} from "@angular/material/icon";
 import {MatInput, MatInputModule} from "@angular/material/input";
 import {NgIf} from "@angular/common";
-import {ERROR_MESSAGE} from "../shared/mock-data";
+import {ERROR_MESSAGE} from "../../shared/constants";
 import {MatOption, MatSelect, MatSelectModule} from "@angular/material/select";
 import {
   MatDatepicker,
@@ -17,6 +17,7 @@ import {
   MatDatepickerInput,
   MatDatepickerToggle
 } from "@angular/material/datepicker";
+import {UserService} from "../../services/user.service";
 
 @Component({
   selector: 'app-add-workout-dialog',
@@ -84,7 +85,7 @@ import {
   standalone: true,
   imports: [MatFormFieldModule, MatInputModule, MatSelectModule, MatDialogTitle, MatDialogContent, FormsModule, MatButton, MatError, MatFormField, MatIcon, MatIconButton, MatInput, MatLabel, MatSuffix, NgIf, ReactiveFormsModule, MatSelect, MatOption, MatDatepickerToggle, MatDatepicker, MatDatepickerActions, MatDatepickerInput, MatDatepickerCancel, MatDatepickerApply],
 })
-export class AddWorkoutDialog {
+export class AddWorkoutDialogComponent {
 
   addWorkoutForm = new FormGroup({
     category: new FormControl('', [Validators.required]),
@@ -93,8 +94,9 @@ export class AddWorkoutDialog {
   });
   protected readonly ERROR_MESSAGE = ERROR_MESSAGE;
 
-  constructor(public dialogRef: MatDialogRef<AddWorkoutDialog>,
-              @Inject(MAT_DIALOG_DATA) public data: DialogData,) {
+  constructor(@Inject(MAT_DIALOG_DATA) public data: IAddWorkoutDialogData,
+              public dialogRef: MatDialogRef<AddWorkoutDialogComponent>,
+              private userService: UserService) {
   }
 
   get category(): any {
@@ -105,9 +107,14 @@ export class AddWorkoutDialog {
     return this.addWorkoutForm.get('date');
   }
 
-
   onSubmit() {
-    console.log(this.addWorkoutForm);
-    this.dialogRef.close();
+    const {user} = this.data;
+    if (user && user.id && this.addWorkoutForm.value.date) {
+      this.userService.addWorkout(user, this.addWorkoutForm.value.date)
+        .subscribe({
+          next: (user) => this.dialogRef.close(user),
+          error: (error) => console.log(error.message)
+        });
+    }
   }
 }

@@ -29,7 +29,18 @@ export class UserService {
         const users: User[] = [];
         for (const key in responseData) {
           if (responseData.hasOwnProperty(key)) {
-            users.push({...responseData[key], id: key});
+            const user = responseData[key];
+            const workoutData = responseData[key].workoutData;
+            users.push({
+              ...user,
+              id: key,
+              workoutData: {
+                goalPerWeek: workoutData.goalPerWeek,
+                completedWorkouts: workoutData.completedWorkouts?.length === 0 ? [] : workoutData.completedWorkouts?.map((dateString) => {
+                  return new Date(dateString)
+                })
+              }
+            });
           }
         }
         return users;
@@ -38,11 +49,33 @@ export class UserService {
   }
 
   fetchUser(id: string): Observable<User> {
-    return this.http.get<User>(`${DOMAIN}${USER_PATH}/${id}.json`);
+    return this.http.get<User>(`${DOMAIN}${USER_PATH}/${id}.json`)
+      .pipe(
+        map((user: User) => {
+          return {
+            ...user,
+            workoutData: {
+              goalPerWeek: user.workoutData.goalPerWeek,
+              completedWorkouts: user.workoutData.completedWorkouts?.length === 0 ? [] : user.workoutData.completedWorkouts?.map((dateString) => {
+                return new Date(dateString)
+              })
+            }
+          };
+        })
+      );
   }
 
   updateUserGoalPerWeek(userId: string, goalPerWeek: number): Observable<any> {
     const userData = {workoutData: {goalPerWeek}};
     return this.http.patch(`${DOMAIN}${USER_PATH}/${userId}.json`, userData);
+  }
+
+  addWorkout(user: User, newWorkout: Date): Observable<any> {
+    const completedWorkouts = user.workoutData.completedWorkouts || [];
+    const userData: User = {
+      ...user,
+      workoutData: {goalPerWeek: user.workoutData.goalPerWeek, completedWorkouts: [...completedWorkouts, newWorkout]}
+    };
+    return this.http.patch(`${DOMAIN}${USER_PATH}/${user.id}.json`, userData);
   }
 }

@@ -1,11 +1,10 @@
-import {Component, Input, OnInit} from "@angular/core";
+import {Component, Input} from "@angular/core";
 import {MatCalendar, MatCalendarCellCssClasses} from "@angular/material/datepicker";
 import {MatCard, MatCardContent, MatCardHeader, MatCardTitle} from "@angular/material/card";
-import {User} from "../models";
+import {User} from "../../models";
 import {MatButton} from "@angular/material/button";
 import {Router, RouterLink} from "@angular/router";
-import {calculateHighlightedUserWorkouts} from "../shared/utils";
-import {COMPLETED_WORKOUTS_MOCKED} from "../shared/mock-data";
+import {calculateHighlightedUserWorkouts} from "../../shared/utils";
 
 @Component({
   selector: 'app-user-workouts',
@@ -41,8 +40,8 @@ import {COMPLETED_WORKOUTS_MOCKED} from "../shared/mock-data";
   template: `
     <mat-card style=" width: 600px; margin: 20px auto">
       <mat-card-header style="display: flex; justify-content: space-between; margin: 15px 0 10px 0">
-        <mat-card-title>{{ mockedUser?.name }} ({{ mockedUser?.workoutData?.goalPerWeek }}x per week)</mat-card-title>
-        <button mat-raised-button (click)="navigateToDetailPage(mockedUser?.id)">View</button>
+        <mat-card-title>{{ user.name }} ({{ user.workoutData.goalPerWeek }}x per week)</mat-card-title>
+        <button mat-raised-button (click)="navigateToDetailPage(user.id)">View</button>
       </mat-card-header>
       <mat-card-content class="row-flex">
         <!-- Month Before Last Month -->
@@ -57,9 +56,8 @@ import {COMPLETED_WORKOUTS_MOCKED} from "../shared/mock-data";
       </mat-card-content>
     </mat-card>`
 })
-export class UserWorkoutsComponent implements OnInit {
+export class UsersWorkoutsComponent {
   @Input() user!: User;
-  mockedUser: User | undefined;
   selectedDate!: Date;
 
   today = new Date();
@@ -69,19 +67,12 @@ export class UserWorkoutsComponent implements OnInit {
   constructor(private router: Router) {
   }
 
-  ngOnInit(): void {
-    // TODO let users insert their workoutData later by themselves instead of populating it with mock data
-    this.mockedUser = {
-      ...this.user,
-      workoutData: {goalPerWeek: this.user.workoutData.goalPerWeek, completedWorkouts: COMPLETED_WORKOUTS_MOCKED}
-    };
-  }
 
   dateClass = (date: Date): MatCalendarCellCssClasses => {
-    return calculateHighlightedUserWorkouts(date, this.mockedUser?.workoutData?.completedWorkouts);
+    return calculateHighlightedUserWorkouts(date, this.user?.workoutData?.completedWorkouts);
   };
 
   navigateToDetailPage(id: string | undefined) {
-    this.router.navigate(['/detail'], {queryParams: {id: id}});
+    this.router.navigate(['/user-workouts'], {queryParams: {id: id}});
   }
 }

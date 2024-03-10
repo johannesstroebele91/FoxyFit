@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from "@angular/core";
 import {MatCard, MatCardContent, MatCardHeader, MatCardTitle} from "@angular/material/card";
-import {User} from "../models";
+import {User} from "../../models";
 import {MatButton, MatIconButton} from "@angular/material/button";
 import {
   MatCalendar,
@@ -12,29 +12,29 @@ import {
   MatDatepickerInput,
   MatDatepickerToggle
 } from "@angular/material/datepicker";
-import {calculateHighlightedUserWorkouts} from "../shared/utils";
+import {calculateHighlightedUserWorkouts} from "../../shared/utils";
 import {MatProgressSpinner} from "@angular/material/progress-spinner";
 import {MatIcon} from "@angular/material/icon";
 import {ActivatedRoute, RouterLink} from "@angular/router";
-import {UserService} from "../services/user.service";
+import {UserService} from "../../services/user.service";
 import {NgIf} from "@angular/common";
-import {COMPLETED_WORKOUTS_MOCKED, ERROR_MESSAGE} from "../shared/mock-data";
+import {ERROR_MESSAGE} from "../../shared/constants";
 import {Subscription} from "rxjs";
 
 import {MatDialog, MatDialogContent, MatDialogTitle,} from '@angular/material/dialog';
-import {AddWorkoutDialog} from "./add-workout-dialog";
+import {AddWorkoutDialogComponent} from "./add-workout-dialog.component";
 import {FormControl, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {MatError, MatFormField, MatFormFieldModule, MatLabel, MatSuffix} from "@angular/material/form-field";
 import {MatInput, MatInputModule} from "@angular/material/input";
 import {MatOption, MatSelect, MatSelectModule} from "@angular/material/select";
 
-export interface DialogData {
-  animal: 'panda' | 'unicorn' | 'lion';
+export interface IAddWorkoutDialogData {
+  user: User;
 }
 
 
 @Component({
-  selector: 'app-detail-user',
+  selector: 'app-user-workouts-user',
   standalone: true,
   imports: [
     MatCard,
@@ -85,14 +85,14 @@ export interface DialogData {
     }
   `],
   template: `
-    <mat-spinner *ngIf="!mockedUser" style="margin: 0 auto"></mat-spinner>
-    <div *ngIf="mockedUser" style="width: 600px; margin: 20px auto; padding-bottom: 60px">
+    <mat-spinner *ngIf="!user" style="margin: 0 auto"></mat-spinner>
+    <div *ngIf="user" style="width: 600px; margin: 20px auto; padding-bottom: 60px">
       <div style="display: flex; flex-direction: row; align-items: center; padding-bottom: 18px">
         <button mat-icon-button color="primary" routerLink="/home" aria-label="Go back to home page"
                 style="position: relative; ">
           <mat-icon>arrow_back</mat-icon>
         </button>
-        <h1 style="margin: 0">{{ mockedUser.name }}</h1>
+        <h1 style="margin: 0">{{ user.name }}</h1>
       </div>
 
       <mat-card style="padding: 12px 0; margin-bottom: 30px">
@@ -110,7 +110,7 @@ export interface DialogData {
             </mat-form-field>
           </mat-form-field>
           <!-- TODO fix later with dynamic data-->
-          <p style="padding-bottom: 6px">1 from {{ mockedUser.workoutData.goalPerWeek }} workouts done for this
+          <p style="padding-bottom: 6px">1 from {{ user.workoutData.goalPerWeek }} workouts done for this
             week
           </p>
           <!-- TODO fix later with dynamic data-->
@@ -169,8 +169,8 @@ export interface DialogData {
     </div>
   `
 })
-export class DetailUserComponent implements OnInit, OnDestroy {
-  mockedUser: User | undefined;
+export class UserWorkoutsComponent implements OnInit, OnDestroy {
+  user: User | undefined;
   selectedDate!: Date;
   userIsLoaded = false;
   goalPerWeek = new FormControl(1, Validators.required);
@@ -184,12 +184,7 @@ export class DetailUserComponent implements OnInit, OnDestroy {
     this.route.queryParams.subscribe(params => {
       this.userFetchSubscription = this.userService.fetchUser(params['id']).subscribe({
           next: (user: User) => {
-
-            this.mockedUser = {
-              ...user,
-              id: params['id'],
-              workoutData: {goalPerWeek: user.workoutData.goalPerWeek, completedWorkouts: COMPLETED_WORKOUTS_MOCKED}
-            };
+            this.user = user;
             if (user) this.userIsLoaded = true;
           },
           error: (error) => {
@@ -201,18 +196,18 @@ export class DetailUserComponent implements OnInit, OnDestroy {
   }
 
   dateClass = (date: Date): MatCalendarCellCssClasses => {
-    return calculateHighlightedUserWorkouts(date, this.mockedUser?.workoutData?.completedWorkouts);
+    return calculateHighlightedUserWorkouts(date, this.user?.workoutData?.completedWorkouts);
   };
 
   openDialog() {
-    const dialogRef = this.dialog.open(AddWorkoutDialog, {
+    const dialogRef = this.dialog.open(AddWorkoutDialogComponent, {
       data: {
-        animal: 'panda',
+        user: this.user
       },
     });
-    // TODO delete maybe later if not needed
-    dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
+
+    dialogRef.afterClosed().subscribe((user: User) => {
+      this.user = user;
     });
   }
 
@@ -223,15 +218,8 @@ export class DetailUserComponent implements OnInit, OnDestroy {
 
   onGoalPerWeekChange(goalEvent: Event) {
     const goalPerWeek = (goalEvent?.target as HTMLInputElement).valueAsNumber; // Assuming input type is number
-
-    console.log('goalPerWeek')
-    console.log(goalPerWeek)
-    console.log('this.mockedUser')
-    console.log(this.mockedUser)
-    console.log('this.mockedUser?.id')
-    console.log(this.mockedUser?.id)
-    if (goalPerWeek && this.mockedUser && this.mockedUser.id) {
-      this.userService.updateUserGoalPerWeek(this.mockedUser.id, goalPerWeek)
+    if (goalPerWeek && this.user && this.user.id) {
+      this.userService.updateUserGoalPerWeek(this.user.id, goalPerWeek)
         .subscribe({
           next: () => console.log('Goal per week updated successfully'),
           error: (error) => console.log(error.message)
