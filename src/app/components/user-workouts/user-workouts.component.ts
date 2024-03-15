@@ -29,7 +29,6 @@ import {
   Observable,
   Subject,
   catchError,
-  distinctUntilChanged,
   map,
   merge,
   switchMap,
@@ -221,9 +220,9 @@ export interface IAddWorkoutDialogData {
           <mat-card-title>Workouts</mat-card-title>
           <button mat-raised-button (click)="openDialog()">Add workout</button>
         </mat-card-header>
-        <mat-card-content>
+        <mat-card-content *ngIf="showCalendar">
           <mat-calendar
-            [dateClass]="dateClass"
+            [dateClass]="dateClassFunction"
             style="width: 500px; margin: 0 auto; height: 550px;"
           ></mat-calendar>
         </mat-card-content>
@@ -238,6 +237,7 @@ export class UserWorkoutsComponent {
   private userService = inject(UserService);
   dialog = inject(MatDialog);
 
+  showCalendar = true;
   userForDialog: User | undefined;
   goalPerWeek = new FormControl(1, Validators.required);
   protected readonly ERROR_MESSAGE = ERROR_MESSAGE;
@@ -251,32 +251,20 @@ export class UserWorkoutsComponent {
     this.userViaUrl$,
     this.userViaDialogSubject$
   ).pipe(
-    tap((user) => (this.userForDialog = user)), // Dialog needs access to user before async in template
+    map((user) => (this.userForDialog = user)), // Dialog needs access to user before async in template
     catchError((error) => {
       console.error('Error fetching user:', error);
       return EMPTY; // Prevents the Observable from completing on error
-    })
+    }),
+    tap(() => this.refreshCalendar()) // Important, so the calendar get's rerendered!
   );
 
-  dateClass = (date: Date): MatCalendarCellCssClasses => {
+  dateClassFunction = (date: Date): MatCalendarCellCssClasses => {
     return calculateHighlightedUserWorkouts(
       date,
       this.userForDialog?.workoutData?.completedWorkouts
     );
   };
-
-  /* THIS DID NOT WORK UNFORTUNATELY */
-  // dateClass$: Observable<(date: Date) => MatCalendarCellCssClasses> =
-  //   this.user$.pipe(
-  //     map((user) => {
-  //       return (date: Date): MatCalendarCellCssClasses => {
-  //         return calculateHighlightedUserWorkouts(
-  //           date,
-  //           user?.workoutData?.completedWorkouts
-  //         );
-  //       };
-  //     })
-  //   );
 
   openDialog() {
     const dialogRef = this.dialog.open(AddWorkoutDialogComponent, {
@@ -300,5 +288,10 @@ export class UserWorkoutsComponent {
           error: (error) => console.log(error.message),
         });
     }
+  }
+
+  private refreshCalendar(): void {
+    this.showCalendar = false;
+    setTimeout(() => (this.showCalendar = true), 0);
   }
 }
