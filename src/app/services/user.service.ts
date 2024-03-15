@@ -17,7 +17,7 @@ const USER_PATH = '/users';
 export class UserService {
   http = inject(HttpClient);
 
-  createNewUser(user: CreateUser): Observable<{ name: string }> {
+  createUser(user: CreateUser): Observable<{ name: string }> {
     const userWithId = {...user, id: crypto.randomUUID()};
     return this.http.put<{
       name: string;

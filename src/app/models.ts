@@ -3,8 +3,9 @@ export interface LoginUser {
   password: string;
 }
 
-export interface CreateUser extends LoginUser {
+export interface CreateUser  {
   name: string;
+  email: string;
   workoutData: WorkoutData;
 }
 
@@ -15,4 +16,14 @@ export interface User extends CreateUser {
 export interface WorkoutData {
   goalPerWeek: number;
   completedWorkouts?: Date[];
+}
+
+export interface AuthResponseData {
+  kind: string;
+  idToken: string;
+  email: string;
+  refreshToken: string;
+  expiresIn: string;
+  localId: string;
+  registered?: boolean;
 }

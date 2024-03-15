@@ -11,6 +11,7 @@ import {MatOption, MatSelect} from '@angular/material/select';
 import {MatCard, MatCardContent, MatCardHeader, MatCardModule,} from '@angular/material/card';
 import {Subscription} from "rxjs";
 import {ERROR_MESSAGE} from "../../shared/constants";
+import {AuthResponseData} from "../../models";
 
 @Component({
   selector: 'app-landing',
@@ -147,14 +148,10 @@ export class LandingComponent implements OnDestroy {
           password: this.loginForm.value.password,
         })
         .subscribe({
-          next: (response) => {
-            if (response.loginAllowed) {
-              this.router.navigate(['/home']);
-            } else {
-              if (response.errorMessage) {
-                this.errorMessage = response.errorMessage;
-              }
-            }
+          next: (response: AuthResponseData) => {
+            // TODO improve later
+            console.log(response)
+            if(response.registered) this.router.navigate(['/home']);
           },
           error: (error) => {
             console.error('Error logging in:', error);
