@@ -138,7 +138,7 @@ export class LandingComponent implements OnDestroy {
 
   onSubmit() {
     if (
-      !this.loginForm.invalid &&
+      this.loginForm.status === "VALID" &&
       this.loginForm.value.email &&
       this.loginForm.value.password
     ) {
@@ -149,8 +149,6 @@ export class LandingComponent implements OnDestroy {
         })
         .subscribe({
           next: (response: AuthResponseData) => {
-            // TODO improve later
-            console.log(response)
             if(response.registered) this.router.navigate(['/home']);
           },
           error: (error) => {

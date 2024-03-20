@@ -1,7 +1,8 @@
 import {inject, Injectable} from '@angular/core';
-import {map, Observable} from 'rxjs';
-import {CreateUser, User} from '../models';
-import {HttpClient} from '@angular/common/http';
+import {exhaustMap, map, Observable, take} from 'rxjs';
+import {CreateUser, User, UserNew} from '../models';
+import {HttpClient, HttpParams} from '@angular/common/http';
+import {AuthService} from "./auth.service";
 
 interface ResponseData {
   [key: string]: User;
@@ -15,6 +16,7 @@ const USER_PATH = '/users';
   providedIn: 'root', // This makes AuthService available throughout the application
 })
 export class UserService {
+  authService = inject(AuthService);
   http = inject(HttpClient);
 
   createUser(user: CreateUser): Observable<{ name: string }> {
@@ -25,7 +27,12 @@ export class UserService {
   }
 
   fetchUsers(): Observable<User[]> {
-    return this.http.get<ResponseData>(DOMAIN + USER_PATH + '.json').pipe(
+    return this.authService.user.pipe(
+      take(1),
+      exhaustMap((user: UserNew) => {
+      return this.http.get<ResponseData>(DOMAIN + USER_PATH + '.json',
+        {params: new HttpParams().set('auth', user.token || '')})
+    }),
       map((responseData: ResponseData) => {
         const users: User[] = [];
         for (const key in responseData) {
@@ -46,7 +53,7 @@ export class UserService {
         }
         return users;
       })
-    );
+    )
   }
 
   fetchUser(id: string): Observable<User> {

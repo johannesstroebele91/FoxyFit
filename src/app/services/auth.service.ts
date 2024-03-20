@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Subject, tap, throwError} from 'rxjs';
+import {ReplaySubject, tap, throwError} from 'rxjs';
 import {catchError} from 'rxjs/operators';
 import {AuthResponseData, LoginUser, UserNew} from '../models';
 import {HttpClient, HttpErrorResponse} from "@angular/common/http";
@@ -8,7 +8,7 @@ import {HttpClient, HttpErrorResponse} from "@angular/common/http";
   providedIn: 'root',
 })
 export class AuthService {
-  user = new Subject<UserNew>();
+  user = new ReplaySubject<UserNew>();
 
   constructor(private http: HttpClient) {
   }

@@ -14,13 +14,12 @@ import {MatIcon} from "@angular/material/icon";
 import {MatInput} from "@angular/material/input";
 import {AsyncPipe, NgForOf, NgIf} from "@angular/common";
 import {Router, RouterLink} from "@angular/router";
-import {HttpClient, HttpErrorResponse} from "@angular/common/http";
+import {HttpClient} from "@angular/common/http";
 import {AuthService} from "../../services/auth.service";
 import {UserService} from "../../services/user.service";
 import {ERROR_MESSAGE} from "../../shared/constants";
 import {MatProgressSpinner} from "@angular/material/progress-spinner";
 import {UsersWorkoutsComponent} from "../home/users-workouts.component";
-import {createFirebaseAuthErrorMessage} from "../../shared/utils";
 
 @Component({
   selector: 'app-register',
@@ -108,20 +107,21 @@ import {createFirebaseAuthErrorMessage} from "../../shared/utils";
                 <input
                   matInput
                   formControlName="password"
-                  [type]="hide ? 'password' : 'text'"
+                  [type]="hidePasswordInput ? 'password' : 'text'"
                   name="password"
                   autocomplete="new-password"
                   minlength="6"
                 />
                 <button
+                  type="button"
                   mat-icon-button
                   matSuffix
-                  (click)="hide = !hide"
+                  (click)="hidePasswordInput = !hidePasswordInput"
                   [attr.aria-label]="'Hide password'"
-                  [attr.aria-pressed]="hide"
+                  [attr.aria-pressed]="hidePasswordInput"
                 >
                   <mat-icon>{{
-                      hide ? 'visibility_off' : 'visibility'
+                      hidePasswordInput ? 'visibility_off' : 'visibility'
                     }}
                   </mat-icon>
                 </button>
@@ -164,7 +164,7 @@ export class RegistrationComponent {
   authService = inject(AuthService);
   userService = inject(UserService);
 
-  hide = true;
+  hidePasswordInput = true;
   isLoading = true;
   signupErrorMessage: string | null = null;
   protected readonly ERROR_MESSAGE = ERROR_MESSAGE;
@@ -192,44 +192,46 @@ export class RegistrationComponent {
     const email = this.signupForm.value.email;
     const password = this.signupForm.value.password;
     if (
-      this.signupForm.valid &&
+      this.signupForm.status === "VALID" &&
       name &&
       email &&
       password
     ) {
-      this.userService
-        .createUser({
-          name,
-          email,
-          workoutData: {goalPerWeek: 1}
+      this.authService
+        .signup({
+          email: email!,
+          password: password!,
         })
         .subscribe({
-          next: (responseData: { name: string }) => {
-            console.log('User was created with this ID: ' + responseData.name);
-
-            this.authService
-              .signup({
-                email: email!,
-                password: password!,
+          next: (response) => {
+            console.log('this.authService.signup')
+            console.log(response)
+            this.userService
+              .createUser({
+                name,
+                email,
+                workoutData: {goalPerWeek: 1}
               })
               .subscribe({
                 next: (response) => {
-                  console.log('response')
+                  console.log('this.userService.createUser')
                   console.log(response)
-                  if (response) {
-                    this.router.navigate(['/home']);
-                  }
                 },
-                error: (error: HttpErrorResponse) => this.signupErrorMessage = createFirebaseAuthErrorMessage(error, 'signup'),
-                });
+                error: (error) => {
+                  console.error('Error creating local user:', error);
+                },
+
+              })
           },
-          error: (error) => {
-            console.error('Error creating user:', error);
+          error: (error: string) => {
+            // TODO use error message later to display problem to user in template!
+            console.log(error)
           },
-        complete: () => {
-          this.isLoading = false;
-        }
-      });
+          complete: () => {
+            this.router.navigate(['/home']);
+            this.isLoading = false;
+          }
+        })
     }
   }
 }
