@@ -1,17 +1,14 @@
-import {inject, Injectable} from '@angular/core';
-import {Observable, of} from 'rxjs';
-import {catchError, map} from 'rxjs/operators';
-import {AuthResponseData, LoginUser} from '../models';
-import {UserService} from './user.service';
-import {HttpClient} from "@angular/common/http";
-
-const SESSION_TOKEN = crypto.randomUUID();
+import {Injectable} from '@angular/core';
+import {Subject, tap, throwError} from 'rxjs';
+import {catchError} from 'rxjs/operators';
+import {AuthResponseData, LoginUser, UserNew} from '../models';
+import {HttpClient, HttpErrorResponse} from "@angular/common/http";
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  userService = inject(UserService);
+  user = new Subject<UserNew>();
 
   constructor(private http: HttpClient) {
   }
@@ -19,43 +16,58 @@ export class AuthService {
   signup(user: LoginUser) {
     return this.http.post<AuthResponseData>('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyDNfKQ0K7vvccU6vkC3mafU1wPtn64UGvU', {
       email: user.email, password: user.password, returnSecureToken: true
-    })
+    }).pipe(catchError(this.handleError), tap((resData) => {
+      this.handleAuthentication(
+        resData.email,
+        resData.localId,
+        resData.idToken,
+        +resData.expiresIn);
+    }))
   }
 
-  isAuthenticated(): boolean {
-    return !!sessionStorage.getItem('token');
-  }
 
   login(user: LoginUser) {
     return this.http.post<AuthResponseData>('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyDNfKQ0K7vvccU6vkC3mafU1wPtn64UGvU', {
       email: user.email, password: user.password, returnSecureToken: true
-    })
+    }).pipe(catchError(this.handleError), tap((resData) => {
+      this.handleAuthentication(
+        resData.email,
+        resData.localId,
+        resData.idToken,
+        +resData.expiresIn);
+    }))
   }
 
-  // TODO delete later
-  loginOld(user: LoginUser): Observable<{ loginAllowed: boolean; errorMessage?: string }> {
-    const {email, password} = user;
+  private handleError(errorRes: HttpErrorResponse) {
+    let errorMessage = 'An unknown error occurred!';
+    if (!errorRes.error || !errorRes.error.error) {
+      return throwError(() => errorMessage); // For network errors ("errorRes.error.error.message" might not exist)
+    }
+    switch (errorRes.error.error.message) {
+      case 'EMAIL_EXISTS':
+        errorMessage = 'This email already exists';
+        break;
+      case 'EMAIL_NOT_FOUND':
+        errorMessage = 'This email was not found';
+        break;
+      case 'INVALID_PASSWORD':
+        errorMessage = 'Password is invalid';
+        break;
+      case 'USER_DISABLED':
+        errorMessage = 'User is disabled';
+        break;
+    }
+    return throwError(() =>errorMessage);
+  }
 
-    sessionStorage.setItem('token', SESSION_TOKEN); // Authentication simulation // TODO: Add real authentication
+  private handleAuthentication(email: string, userId: string, token: string, expiresIn: number) {
+    const expirationDate = new Date(new Date().getTime() + +expiresIn *1000);
+    const user = new UserNew(email, userId, token, expirationDate)
+    this.user.next(user)
 
-    return this.userService.fetchUsers().pipe(map((users) => {
-      const userInsertedValidCreds = users.some((loadedUser) => loadedUser.email === email);
-      if (userInsertedValidCreds && sessionStorage.getItem('token') === SESSION_TOKEN) {
-        return {loginAllowed: true};
-      } else {
-        console.log('Error logging in');
-        return {
-          loginAllowed: false,
-          errorMessage: 'Invalid email, password, or token. Please try again or register a new user via the link below.',
-        };
-      }
-    }), catchError((error) => {
-      console.log('Error logging in:', error);
-      return of({loginAllowed: false, errorMessage: error.message});
-    }));
   }
 
   logout(): void {
-    sessionStorage.removeItem('token');
+    // TODO remove firebase token
   }
 }

@@ -149,7 +149,7 @@ import {createFirebaseAuthErrorMessage} from "../../shared/utils";
         <mat-card-footer>
         <span style="margin-top: 20px"
         >If you are already registered, you can log in
-          <a routerLink="register">here!</a></span
+          <a routerLink="">here!</a></span
         >
         </mat-card-footer>
       </mat-card>
@@ -159,20 +159,21 @@ import {createFirebaseAuthErrorMessage} from "../../shared/utils";
   `,
 })
 export class RegistrationComponent {
+  http = inject(HttpClient);
+  router = inject(Router);
+  authService = inject(AuthService);
+  userService = inject(UserService);
+
   hide = true;
+  isLoading = true;
   signupErrorMessage: string | null = null;
+  protected readonly ERROR_MESSAGE = ERROR_MESSAGE;
+
   signupForm = new FormGroup({
     name: new FormControl('', [Validators.required]),
     email: new FormControl('', [Validators.required, Validators.email]),
     password: new FormControl('', Validators.required),
   });
-
-  http = inject(HttpClient);
-  router = inject(Router);
-  authService = inject(AuthService);
-  userService = inject(UserService);
-  protected readonly ERROR_MESSAGE = ERROR_MESSAGE;
-  isLoading = true;
 
   get name(): any {
     return this.signupForm.get('name');
@@ -213,6 +214,7 @@ export class RegistrationComponent {
               })
               .subscribe({
                 next: (response) => {
+                  console.log('response')
                   console.log(response)
                   if (response) {
                     this.router.navigate(['/home']);

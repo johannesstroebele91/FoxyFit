@@ -1,4 +1,4 @@
-import {Component} from "@angular/core";
+import {Component, OnDestroy, OnInit} from "@angular/core";
 import {MatNativeDateModule} from "@angular/material/core";
 import {Router, RouterLink, RouterOutlet} from "@angular/router";
 import {MatButton, MatIconButton} from "@angular/material/button";
@@ -9,6 +9,7 @@ import {MatCard, MatCardContent, MatCardHeader, MatCardTitle} from "@angular/mat
 import {MatToolbar, MatToolbarModule} from "@angular/material/toolbar";
 import {NgIf} from "@angular/common";
 import {AuthService} from "./services/auth.service";
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'app-root',
@@ -20,7 +21,7 @@ import {AuthService} from "./services/auth.service";
         <span style="letter-spacing: 1.2px">{{ title }}</span>
         <mat-icon style="margin-left: 3px">directions_run</mat-icon>
         <span style="flex: 1 1 auto;"></span>
-        <a *ngIf="isNotOnLandingOrRegisterPage()" routerLink="/" (click)="logout()"
+        <a *ngIf="isNotOnLandingOrRegisterPage() && isAuthenticated" routerLink="/" (click)="logout()"
            style="color: white; text-decoration: none; font-size: 16px">Logout</a>
       </mat-toolbar-row>
     </mat-toolbar>
@@ -30,11 +31,17 @@ import {AuthService} from "./services/auth.service";
 
   `,
 })
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy{
+  isAuthenticated = false;
   title = 'FoxyFit';
-
+  private userSub: Subscription | undefined;
   constructor(private router: Router, private authService: AuthService) {}
 
+  ngOnInit(): void {
+    this.userSub =this.authService.user.subscribe((user) => {
+      this.isAuthenticated = !user ? false : true;
+    })
+  }
   isNotOnLandingOrRegisterPage(): boolean {
     const isOnLandingPage = this.router.url !== '/';
     const isOnRegisterPage = this.router.url !== '/register';
@@ -42,6 +49,10 @@ export class AppComponent {
   }
 
   logout() {
-    this.authService.logout()
+     this.authService.logout()
+  }
+
+  ngOnDestroy(): void {
+    this.userSub?.unsubscribe()
   }
 }
