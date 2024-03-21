@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {ReplaySubject, tap, throwError} from 'rxjs';
 import {catchError} from 'rxjs/operators';
 import {AuthResponseData, LoginUser, UserNew} from '../models';
@@ -10,8 +10,7 @@ import {HttpClient, HttpErrorResponse} from "@angular/common/http";
 export class AuthService {
   user = new ReplaySubject<UserNew>();
 
-  constructor(private http: HttpClient) {
-  }
+  http = inject(HttpClient);
 
   signup(user: LoginUser) {
     return this.http.post<AuthResponseData>('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyDNfKQ0K7vvccU6vkC3mafU1wPtn64UGvU', {
