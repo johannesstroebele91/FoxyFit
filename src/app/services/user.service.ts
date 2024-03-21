@@ -1,7 +1,7 @@
 import {inject, Injectable} from '@angular/core';
 import {exhaustMap, map, Observable, take} from 'rxjs';
-import {CreateUser, User, UserNew} from '../models';
-import {HttpClient, HttpParams} from '@angular/common/http';
+import {CreateUser, User} from '../models';
+import {HttpClient} from '@angular/common/http';
 import {AuthService} from "./auth.service";
 
 interface ResponseData {
@@ -29,9 +29,8 @@ export class UserService {
   fetchUsers(): Observable<User[]> {
     return this.authService.user.pipe(
       take(1),
-      exhaustMap((user: UserNew) => {
-      return this.http.get<ResponseData>(DOMAIN + USER_PATH + '.json',
-        {params: new HttpParams().set('auth', user.token || '')})
+      exhaustMap(() => {
+      return this.http.get<ResponseData>(DOMAIN + USER_PATH + '.json')
     }),
       map((responseData: ResponseData) => {
         const users: User[] = [];

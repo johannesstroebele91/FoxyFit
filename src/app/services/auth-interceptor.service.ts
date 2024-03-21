@@ -17,7 +17,7 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
 
   return authService.user.pipe(
     take(1),
-    exhaustMap((user: UserNew) => { // Specify the type of user as UserNew
+    exhaustMap((user: UserNew | null) => { // Specify the type of user as UserNew
       // if there is no user, return the original request
       console.log('user')
       console.log(user)

@@ -9,7 +9,7 @@ export const AuthGuard = async () => {
   const router = inject(Router);
 
   // Wait for the isAuthenticated promise to resolve
-  const authenticated = authService.user.pipe(map((user: UserNew) => {
+  const authenticated = authService.user.pipe(map((user: UserNew | null) => {
     return user !== null;
   }));
 

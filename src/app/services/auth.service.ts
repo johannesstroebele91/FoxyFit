@@ -3,17 +3,22 @@ import {ReplaySubject, tap, throwError} from 'rxjs';
 import {catchError} from 'rxjs/operators';
 import {AuthResponseData, LoginUser, UserNew} from '../models';
 import {HttpClient, HttpErrorResponse} from "@angular/common/http";
+import {Router} from "@angular/router";
 
+const WEB_API_KEY = 'AIzaSyDNfKQ0K7vvccU6vkC3mafU1wPtn64UGvU'
+const IDENTITY_URL = 'https://identitytoolkit.googleapis.com/v1/accounts:';
+const URL_KEY = '?key='
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  user = new ReplaySubject<UserNew>();
+  user = new ReplaySubject<UserNew | null>();
 
   http = inject(HttpClient);
+  router = inject(Router);
 
   signup(user: LoginUser) {
-    return this.http.post<AuthResponseData>('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyDNfKQ0K7vvccU6vkC3mafU1wPtn64UGvU', {
+    return this.http.post<AuthResponseData>(IDENTITY_URL + 'signUp' + URL_KEY +WEB_API_KEY, {
       email: user.email, password: user.password, returnSecureToken: true
     }).pipe(catchError(this.handleError), tap((resData) => {
       this.handleAuthentication(
@@ -26,7 +31,7 @@ export class AuthService {
 
 
   login(user: LoginUser) {
-    return this.http.post<AuthResponseData>('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyDNfKQ0K7vvccU6vkC3mafU1wPtn64UGvU', {
+    return this.http.post<AuthResponseData>(IDENTITY_URL +'signInWithPassword' +URL_KEY +WEB_API_KEY, {
       email: user.email, password: user.password, returnSecureToken: true
     }).pipe(catchError(this.handleError), tap((resData) => {
       this.handleAuthentication(
@@ -63,10 +68,30 @@ export class AuthService {
     const expirationDate = new Date(new Date().getTime() + +expiresIn *1000);
     const user = new UserNew(email, userId, token, expirationDate)
     this.user.next(user)
-
+    localStorage.setItem('userData', JSON.stringify(user)); // JSON.stringify is needed because local store can only store strings for the key-value-pairs
   }
 
   logout(): void {
-    // TODO remove firebase token
+    this.user.next(null);
+    this.router.navigate(['/'])
+  }
+
+  autoLoginAfterReload() {
+    const userDataJson = localStorage.getItem('userData');
+    if (!userDataJson) return;
+
+    const userData: {
+      email: string,
+      id: string;
+      _token: string;
+      _tokenExpirationDate: string;
+    } = JSON.parse(userDataJson); // Now it's safe to parse because we checked for null
+
+    const { email, id, _token, _tokenExpirationDate } = userData;
+
+    const loadedUser = new UserNew(email, id, _token, new Date(_tokenExpirationDate));
+    if (loadedUser.token) {
+      this.user.next(loadedUser);
+    }
   }
 }
