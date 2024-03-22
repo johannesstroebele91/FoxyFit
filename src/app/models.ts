@@ -1,16 +1,27 @@
-export interface LoginUser {
+export interface AuthLoginUser {
   email: string;
   password: string;
 }
 
-export interface CreateUser  {
-  name: string;
-  email: string;
-  workoutData: WorkoutData;
+export class AuthUser {
+  constructor(
+    public email: string,
+    public id: string,
+    private _token: string,
+    private _tokenExpirationDate: Date) {}
+
+
+  get token(): null |string {
+    if (!this._tokenExpirationDate || new Date() >this._tokenExpirationDate) return null
+    return this._token
+  }
 }
 
-export interface User extends CreateUser {
+export interface UserWithWorkoutData {
+  name: string;
+  email: string;
   id: string;
+  workoutData: WorkoutData;
 }
 
 export interface WorkoutData {
@@ -26,19 +37,4 @@ export interface AuthResponseData {
   expiresIn: string;
   localId: string;
   registered?: boolean;
-}
-
-export class UserNew {
-  constructor(
-    public email: string,
-    public id: string,
-    private _token: string,
-    private _tokenExpirationDate: Date) {}
-
-
-  get token(): null |string {
-    if (!this._tokenExpirationDate || new Date() >this._tokenExpirationDate) return null
-    return this._token
-  }
-
 }

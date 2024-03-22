@@ -2,7 +2,7 @@ import {HttpEvent, HttpHandlerFn, HttpInterceptorFn, HttpParams, HttpRequest} fr
 import {inject} from "@angular/core";
 import {exhaustMap, Observable, take} from "rxjs";
 import {AuthService} from "./auth.service";
-import {UserNew} from "../models"; // Import the authService
+import {AuthUser} from "../models"; // Import the authService
 
 
 export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next: HttpHandlerFn): Observable<HttpEvent<unknown>> => {
@@ -17,10 +17,8 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
 
   return authService.user.pipe(
     take(1),
-    exhaustMap((user: UserNew | null) => { // Specify the type of user as UserNew
+    exhaustMap((user: AuthUser | null) => { // Specify the type of user as UserNew
       // if there is no user, return the original request
-      console.log('user')
-      console.log(user)
       if (!user) return next(req);
       const modifiedReq = req.clone({
         params: new HttpParams().set('auth', user.token || '')

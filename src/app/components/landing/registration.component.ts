@@ -203,20 +203,15 @@ export class RegistrationComponent {
           password: password!,
         })
         .subscribe({
-          next: (response) => {
-            console.log('this.authService.signup')
-            console.log(response)
+          next: () => {
             this.userService
               .createUser({
                 name,
                 email,
+                id: crypto.randomUUID(),
                 workoutData: {goalPerWeek: 1}
               })
               .subscribe({
-                next: (response) => {
-                  console.log('this.userService.createUser')
-                  console.log(response)
-                },
                 error: (error) => {
                   console.error('Error creating local user:', error);
                 },

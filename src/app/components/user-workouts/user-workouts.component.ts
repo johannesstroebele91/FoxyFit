@@ -5,7 +5,7 @@ import {
   MatCardHeader,
   MatCardTitle,
 } from '@angular/material/card';
-import { User } from '../../models';
+import { UserWithWorkoutData } from '../../models';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import {
   MatCalendar,
@@ -29,8 +29,6 @@ import {
   Observable,
   Subject,
   catchError,
-  distinctUntilChanged,
-  map,
   merge,
   switchMap,
   tap,
@@ -63,7 +61,7 @@ import {
 } from '@angular/material/select';
 
 export interface IAddWorkoutDialogData {
-  user: User;
+  user: UserWithWorkoutData;
 }
 
 @Component({
@@ -238,16 +236,16 @@ export class UserWorkoutsComponent {
   private userService = inject(UserService);
   dialog = inject(MatDialog);
 
-  userForDialog: User | undefined;
+  userForDialog: UserWithWorkoutData | undefined;
   goalPerWeek = new FormControl(1, Validators.required);
   protected readonly ERROR_MESSAGE = ERROR_MESSAGE;
 
-  userViaDialogSubject$ = new Subject<User>();
-  userViaUrl$: Observable<User> = this.route.queryParams.pipe(
+  userViaDialogSubject$ = new Subject<UserWithWorkoutData>();
+  userViaUrl$: Observable<UserWithWorkoutData> = this.route.queryParams.pipe(
     switchMap((params) => this.userService.fetchUser(params['id']))
   );
 
-  user$: Observable<User> = merge(
+  user$: Observable<UserWithWorkoutData> = merge(
     this.userViaUrl$,
     this.userViaDialogSubject$
   ).pipe(
@@ -287,7 +285,7 @@ export class UserWorkoutsComponent {
 
     dialogRef
       .afterClosed()
-      .subscribe((user: User) => this.userViaDialogSubject$.next(user));
+      .subscribe((user: UserWithWorkoutData) => this.userViaDialogSubject$.next(user));
   }
 
   onGoalPerWeekChange(goalEvent: Event) {
