@@ -6,7 +6,7 @@ import {CommonModule, NgForOf, NgIf} from '@angular/common';
 import {RouterLink} from '@angular/router';
 import {UsersWorkoutsComponent} from './users-workouts.component';
 import {UserService} from '../../services/user.service';
-import {User} from '../../models';
+import {UserWithWorkoutData} from '../../models';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
 import {catchError, Observable, of} from 'rxjs';
 
@@ -41,7 +41,7 @@ export class HomeComponent {
 
   userService = inject(UserService)
 
-  users$: Observable<User[] | undefined> = this.userService
+  users$: Observable<UserWithWorkoutData[] | undefined> = this.userService
     .fetchUsers()
     .pipe(
       catchError((err) => {
