@@ -8,11 +8,14 @@ import {Router} from "@angular/router";
 const WEB_API_KEY = 'AIzaSyDNfKQ0K7vvccU6vkC3mafU1wPtn64UGvU'
 const IDENTITY_URL = 'https://identitytoolkit.googleapis.com/v1/accounts:';
 const URL_KEY = '?key='
+const MILLI_SECONDS =  1000;
+
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   user = new ReplaySubject<UserNew | null>();
+  private tokenExpirationTimer: any;
 
   http = inject(HttpClient);
   router = inject(Router);
@@ -65,15 +68,11 @@ export class AuthService {
   }
 
   private handleAuthentication(email: string, userId: string, token: string, expiresIn: number) {
-    const expirationDate = new Date(new Date().getTime() + +expiresIn *1000);
+    const expirationDate = new Date(new Date().getTime() + +expiresIn * MILLI_SECONDS);
     const user = new UserNew(email, userId, token, expirationDate)
     this.user.next(user)
+    this.autoLogoutAfterTokenExpires(expiresIn * MILLI_SECONDS)
     localStorage.setItem('userData', JSON.stringify(user)); // JSON.stringify is needed because local store can only store strings for the key-value-pairs
-  }
-
-  logout(): void {
-    this.user.next(null);
-    this.router.navigate(['/'])
   }
 
   autoLoginAfterReload() {
@@ -85,13 +84,35 @@ export class AuthService {
       id: string;
       _token: string;
       _tokenExpirationDate: string;
-    } = JSON.parse(userDataJson); // Now it's safe to parse because we checked for null
+    } = JSON.parse(userDataJson);
 
-    const { email, id, _token, _tokenExpirationDate } = userData;
+    const {email, id, _token, _tokenExpirationDate} = userData;
 
     const loadedUser = new UserNew(email, id, _token, new Date(_tokenExpirationDate));
     if (loadedUser.token) {
       this.user.next(loadedUser);
     }
+
+    if (loadedUser.token) {
+      this.user.next(loadedUser);
+      const expirationDuration = new Date(userData._tokenExpirationDate).getTime() - new Date().getTime()
+      this.autoLogoutAfterTokenExpires(expirationDuration);
+    }
+  }
+
+  logout() {
+    this.user.next(null);
+    this.router.navigate(['/']);
+    localStorage.removeItem('userData');
+    // if we log out manually, the automatic timer should be cleared!
+    if (this.tokenExpirationTimer) clearTimeout(this.tokenExpirationTimer);
+    this.tokenExpirationTimer = null;
+  }
+
+  autoLogoutAfterTokenExpires(expirationDuration: number) {
+    console.log(expirationDuration)
+    this.tokenExpirationTimer = setTimeout(() => {
+      this.logout();
+    }, expirationDuration);
   }
 }
