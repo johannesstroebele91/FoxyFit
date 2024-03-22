@@ -5,7 +5,6 @@ import {AuthResponseData, AuthLoginUser, AuthUser} from '../models';
 import {HttpClient, HttpErrorResponse} from "@angular/common/http";
 import {Router} from "@angular/router";
 
-const WEB_API_KEY = 'AIzaSyDNfKQ0K7vvccU6vkC3mafU1wPtn64UGvU'
 const IDENTITY_URL = 'https://identitytoolkit.googleapis.com/v1/accounts:';
 const URL_KEY = '?key='
 const MILLI_SECONDS =  1000;
@@ -21,7 +20,7 @@ export class AuthService {
   router = inject(Router);
 
   signup(user: AuthLoginUser) {
-    return this.http.post<AuthResponseData>(IDENTITY_URL + 'signUp' + URL_KEY +WEB_API_KEY, {
+    return this.http.post<AuthResponseData>(IDENTITY_URL + 'signUp' + URL_KEY + ["WEB_API_KEY"], {
       email: user.email, password: user.password, returnSecureToken: true
     }).pipe(catchError(this.handleError), tap((resData) => {
       this.handleAuthentication(
@@ -34,7 +33,7 @@ export class AuthService {
 
 
   login(user: AuthLoginUser) {
-    return this.http.post<AuthResponseData>(IDENTITY_URL +'signInWithPassword' +URL_KEY +WEB_API_KEY, {
+    return this.http.post<AuthResponseData>(IDENTITY_URL +'signInWithPassword' +URL_KEY + ["WEB_API_KEY"], {
       email: user.email, password: user.password, returnSecureToken: true
     }).pipe(catchError(this.handleError), tap((resData) => {
       this.handleAuthentication(
