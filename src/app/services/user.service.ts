@@ -1,10 +1,11 @@
 import {inject, Injectable} from '@angular/core';
-import {map, Observable} from 'rxjs';
-import {CreateUser, User} from '../models';
+import {exhaustMap, map, Observable, take} from 'rxjs';
+import { UserWithWorkoutData} from '../models';
 import {HttpClient} from '@angular/common/http';
+import {AuthService} from "./auth.service";
 
 interface ResponseData {
-  [key: string]: User;
+  [key: string]: UserWithWorkoutData;
 }
 
 const DOMAIN =
@@ -15,19 +16,23 @@ const USER_PATH = '/users';
   providedIn: 'root', // This makes AuthService available throughout the application
 })
 export class UserService {
+  authService = inject(AuthService);
   http = inject(HttpClient);
 
-  createNewUser(user: CreateUser): Observable<{ name: string }> {
-    const userWithId = {...user, id: crypto.randomUUID()};
+  createUser(user: UserWithWorkoutData): Observable<{ name: string }> {
     return this.http.put<{
       name: string;
-    }>(`${DOMAIN}${USER_PATH}/${userWithId.id}.json`, userWithId);
+    }>(`${DOMAIN}${USER_PATH}/${user.id}.json`, user);
   }
 
-  fetchUsers(): Observable<User[]> {
-    return this.http.get<ResponseData>(DOMAIN + USER_PATH + '.json').pipe(
+  fetchUsers(): Observable<UserWithWorkoutData[]> {
+    return this.authService.user.pipe(
+      take(1),
+      exhaustMap(() => {
+      return this.http.get<ResponseData>(DOMAIN + USER_PATH + '.json')
+    }),
       map((responseData: ResponseData) => {
-        const users: User[] = [];
+        const users: UserWithWorkoutData[] = [];
         for (const key in responseData) {
           if (responseData.hasOwnProperty(key)) {
             const user = responseData[key];
@@ -46,13 +51,13 @@ export class UserService {
         }
         return users;
       })
-    );
+    )
   }
 
-  fetchUser(id: string): Observable<User> {
-    return this.http.get<User>(`${DOMAIN}${USER_PATH}/${id}.json`)
+  fetchUser(id: string): Observable<UserWithWorkoutData> {
+    return this.http.get<UserWithWorkoutData>(`${DOMAIN}${USER_PATH}/${id}.json`)
       .pipe(
-        map((user: User) => {
+        map((user: UserWithWorkoutData) => {
           return {
             ...user,
             workoutData: {
@@ -71,9 +76,9 @@ export class UserService {
     return this.http.patch(`${DOMAIN}${USER_PATH}/${userId}.json`, userData);
   }
 
-  addWorkout(user: User, newWorkout: Date): Observable<any> {
+  addWorkout(user: UserWithWorkoutData, newWorkout: Date): Observable<any> {
     const completedWorkouts = user.workoutData.completedWorkouts || [];
-    const userData: User = {
+    const userData: UserWithWorkoutData = {
       ...user,
       workoutData: {goalPerWeek: user.workoutData.goalPerWeek, completedWorkouts: [...completedWorkouts, newWorkout]}
     };

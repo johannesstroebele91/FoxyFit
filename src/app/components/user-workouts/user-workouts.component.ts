@@ -5,7 +5,7 @@ import {
   MatCardHeader,
   MatCardTitle,
 } from '@angular/material/card';
-import { User } from '../../models';
+import { UserWithWorkoutData } from '../../models';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import {
   MatCalendar,
@@ -62,7 +62,7 @@ import {
 } from '@angular/material/select';
 
 export interface IAddWorkoutDialogData {
-  user: User;
+  user: UserWithWorkoutData;
 }
 
 @Component({
@@ -237,21 +237,25 @@ export class UserWorkoutsComponent {
   private userService = inject(UserService);
   dialog = inject(MatDialog);
 
+  userForDialog: UserWithWorkoutData | undefined;
   showCalendar = true;
-  userForDialog: User | undefined;
   goalPerWeek = new FormControl(1, Validators.required);
   protected readonly ERROR_MESSAGE = ERROR_MESSAGE;
 
-  userViaDialogSubject$ = new Subject<User>();
-  userViaUrl$: Observable<User> = this.route.queryParams.pipe(
+  userViaDialogSubject$ = new Subject<UserWithWorkoutData>();
+  userViaUrl$: Observable<UserWithWorkoutData> = this.route.queryParams.pipe(
     switchMap((params) => this.userService.fetchUser(params['id']))
   );
 
-  user$: Observable<User> = merge(
+  user$: Observable<UserWithWorkoutData> = merge(
     this.userViaUrl$,
     this.userViaDialogSubject$
   ).pipe(
-    map((user) => (this.userForDialog = user)), // Dialog needs access to user before async in template
+    tap((user) => {
+      this.userForDialog = user;
+      this.goalPerWeek.setValue(user.workoutData.goalPerWeek);
+      return (this.userForDialog = user);
+    }), // Dialog needs access to user before async in template
     catchError((error) => {
       console.error('Error fetching user:', error);
       return EMPTY; // Prevents the Observable from completing on error
@@ -275,7 +279,7 @@ export class UserWorkoutsComponent {
 
     dialogRef
       .afterClosed()
-      .subscribe((user: User) => this.userViaDialogSubject$.next(user));
+      .subscribe((user: UserWithWorkoutData) => this.userViaDialogSubject$.next(user));
   }
 
   onGoalPerWeekChange(goalEvent: Event) {

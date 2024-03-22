@@ -1,7 +1,7 @@
 import {Component, Input} from "@angular/core";
 import {MatCalendar, MatCalendarCellCssClasses} from "@angular/material/datepicker";
 import {MatCard, MatCardContent, MatCardHeader, MatCardTitle} from "@angular/material/card";
-import {User} from "../../models";
+import {UserWithWorkoutData} from "../../models";
 import {MatButton} from "@angular/material/button";
 import {Router, RouterLink} from "@angular/router";
 import {calculateHighlightedUserWorkouts} from "../../shared/utils";
@@ -57,7 +57,7 @@ import {calculateHighlightedUserWorkouts} from "../../shared/utils";
     </mat-card>`
 })
 export class UsersWorkoutsComponent {
-  @Input() user!: User;
+  @Input() user!: UserWithWorkoutData;
   selectedDate!: Date;
 
   today = new Date();
