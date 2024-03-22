@@ -4,6 +4,7 @@ import {catchError} from 'rxjs/operators';
 import {AuthResponseData, AuthLoginUser, AuthUser} from '../models';
 import {HttpClient, HttpErrorResponse} from "@angular/common/http";
 import {Router} from "@angular/router";
+import {environment} from "../../environments/environment";
 
 const IDENTITY_URL = 'https://identitytoolkit.googleapis.com/v1/accounts:';
 const URL_KEY = '?key='
@@ -20,7 +21,7 @@ export class AuthService {
   router = inject(Router);
 
   signup(user: AuthLoginUser) {
-    return this.http.post<AuthResponseData>(IDENTITY_URL + 'signUp' + URL_KEY + ["WEB_API_KEY"], {
+    return this.http.post<AuthResponseData>(IDENTITY_URL + 'signUp' + URL_KEY + environment.WEB_API_KEY, {
       email: user.email, password: user.password, returnSecureToken: true
     }).pipe(catchError(this.handleError), tap((resData) => {
       this.handleAuthentication(

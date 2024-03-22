@@ -18,8 +18,6 @@ export function calculateHighlightedUserWorkouts(
           ? completedWorkoutAsDay
           : new Date(completedWorkoutAsDay);
 
-      console.log('workoutDate: ', workoutDate);
-
       return (
         workoutDate.getDate() === date.getDate() &&
         workoutDate.getMonth() === date.getMonth() &&
