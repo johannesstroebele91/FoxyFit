@@ -251,8 +251,9 @@ export class UserWorkoutsComponent {
     this.userViaUrl$,
     this.userViaDialogSubject$
   ).pipe(
+    map((user) => (this.userForDialog = user)), // Dialog needs access to user before async in template
     tap((user) => {
-      this.userForDialog = user;
+      this.refreshCalendar() // Important, so the calendar get's rerendered!
       this.goalPerWeek.setValue(user.workoutData.goalPerWeek);
       return (this.userForDialog = user);
     }), // Dialog needs access to user before async in template
@@ -260,7 +261,6 @@ export class UserWorkoutsComponent {
       console.error('Error fetching user:', error);
       return EMPTY; // Prevents the Observable from completing on error
     }),
-    tap(() => this.refreshCalendar()) // Important, so the calendar get's rerendered!
   );
 
   dateClassFunction = (date: Date): MatCalendarCellCssClasses => {
