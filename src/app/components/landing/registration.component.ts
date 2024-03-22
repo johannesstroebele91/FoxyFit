@@ -222,10 +222,6 @@ export class RegistrationComponent {
             // TODO use error message later to display problem to user in template!
             console.log(error)
           },
-          complete: () => {
-            this.router.navigate(['/home']);
-            this.isLoading = false;
-          }
         })
     }
   }
