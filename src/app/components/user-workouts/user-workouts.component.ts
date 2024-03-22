@@ -249,7 +249,11 @@ export class UserWorkoutsComponent {
     this.userViaUrl$,
     this.userViaDialogSubject$
   ).pipe(
-    tap((user) => (this.userForDialog = user)), // Dialog needs access to user before async in template
+    tap((user) => {
+      this.userForDialog = user;
+      this.goalPerWeek.setValue(user.workoutData.goalPerWeek);
+      return (this.userForDialog = user);
+    }), // Dialog needs access to user before async in template
     catchError((error) => {
       console.error('Error fetching user:', error);
       return EMPTY; // Prevents the Observable from completing on error
