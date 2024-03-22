@@ -215,7 +215,10 @@ export class RegistrationComponent {
                 error: (error) => {
                   console.error('Error creating local user:', error);
                 },
-
+                complete: () => {
+                  this.router.navigate(['/home']);
+                  this.isLoading = false;
+                }
               })
           },
           error: (error: string) => {
