@@ -4,7 +4,7 @@ import {catchError} from 'rxjs/operators';
 import {AuthResponseData, AuthLoginUser, AuthUser} from '../models';
 import {HttpClient, HttpErrorResponse} from "@angular/common/http";
 import {Router} from "@angular/router";
-import {environment} from "../../environments/environment";
+import { environment } from '../../environments/environment.prod';
 
 const IDENTITY_URL = 'https://identitytoolkit.googleapis.com/v1/accounts:';
 const URL_KEY = '?key='
