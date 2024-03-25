@@ -130,7 +130,7 @@
 				"collect-vars": {
 					"builder": "ng-process-env:collectVars",
 					"options": {
-						"environmentFile": "src/environments/environment.production.ts"
+						"environmentFile": "src/environments/environment.prod.ts"
 					}
 				}
 			}
