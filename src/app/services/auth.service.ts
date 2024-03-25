@@ -9,7 +9,7 @@ import {environment} from "../../environments/environment";
 const IDENTITY_URL = 'https://identitytoolkit.googleapis.com/v1/accounts:';
 const URL_KEY = '?key='
 const MILLI_SECONDS =  1000;
-const API_KEY =  environment.production ? environment.WEB_API_KEY : environment.WEB_API_KEY;
+const API_KEY =  environment.production ? environment.envVar.WEB_API_KEY : environment.envVar.WEB_API_KEY;
 
 @Injectable({
   providedIn: 'root',
