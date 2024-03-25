@@ -61,6 +61,10 @@
 					},
 					"configurations": {
 						"production": {
+              "builder": "ng-process-env:browser",
+              "options": {
+                "processEnvFile": "src/environments/environment.prod.ts"
+              },
 							"budgets": [
 								{
 									"type": "initial",
