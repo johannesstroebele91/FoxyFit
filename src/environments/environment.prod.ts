@@ -1,4 +1,7 @@
 export const environment = {
   production: true,
-  WEB_API_KEY: '' // Leave this empty; Vercel will fill it in
+  baseUrl: "https://foxy-fitness.vercel.app",
+  envVar: {
+    WEB_API_KEY: 'undefined'
+  }
 };

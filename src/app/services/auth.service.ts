@@ -9,6 +9,7 @@ import {environment} from "../../environments/environment";
 const IDENTITY_URL = 'https://identitytoolkit.googleapis.com/v1/accounts:';
 const URL_KEY = '?key='
 const MILLI_SECONDS =  1000;
+const API_KEY =  environment.production ? environment.WEB_API_KEY : environment.WEB_API_KEY;
 
 @Injectable({
   providedIn: 'root',
@@ -21,7 +22,7 @@ export class AuthService {
   router = inject(Router);
 
   signup(user: AuthLoginUser) {
-    return this.http.post<AuthResponseData>(IDENTITY_URL + 'signUp'  + URL_KEY + environment.WEB_API_KEY, {
+    return this.http.post<AuthResponseData>(IDENTITY_URL + 'signUp'  + URL_KEY + API_KEY, {
       email: user.email, password: user.password, returnSecureToken: true
     }).pipe(catchError(this.handleError), tap((resData) => {
       this.handleAuthentication(
@@ -34,7 +35,7 @@ export class AuthService {
 
 
   login(user: AuthLoginUser) {
-    return this.http.post<AuthResponseData>(IDENTITY_URL +'signInWithPassword' +URL_KEY + environment.WEB_API_KEY, {
+    return this.http.post<AuthResponseData>(IDENTITY_URL +'signInWithPassword' +URL_KEY + API_KEY, {
       email: user.email, password: user.password, returnSecureToken: true
     }).pipe(catchError(this.handleError), tap((resData) => {
       this.handleAuthentication(

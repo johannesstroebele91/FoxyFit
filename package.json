@@ -4,12 +4,9 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng run FoxyFit:collect-vars && ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test",
-    "build:prod": "ng build --configuration production",
-    "vercel-build": "WEB_API_KEY=${WEB_API_KEY} ng build --configuration production"
-
+    "test": "ng test"
   },
   "private": true,
   "dependencies": {
@@ -24,6 +21,7 @@
     "@angular/platform-browser-dynamic": "^17.3.0",
     "@angular/router": "^17.3.0",
     "material-icons": "^1.13.12",
+    "ng-process-env": "^16.0.6",
     "roboto-fontface": "^0.10.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
