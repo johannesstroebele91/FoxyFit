@@ -21,7 +21,7 @@ export class AuthService {
   router = inject(Router);
 
   signup(user: AuthLoginUser) {
-    return this.http.post<AuthResponseData>(IDENTITY_URL + 'signUp' + URL_KEY + environment.WEB_API_KEY, {
+    return this.http.post<AuthResponseData>(IDENTITY_URL + 'signUp'  + URL_KEY + environment.WEB_API_KEY, {
       email: user.email, password: user.password, returnSecureToken: true
     }).pipe(catchError(this.handleError), tap((resData) => {
       this.handleAuthentication(
@@ -34,7 +34,7 @@ export class AuthService {
 
 
   login(user: AuthLoginUser) {
-    return this.http.post<AuthResponseData>(IDENTITY_URL +'signInWithPassword' +URL_KEY + ["WEB_API_KEY"], {
+    return this.http.post<AuthResponseData>(IDENTITY_URL +'signInWithPassword' +URL_KEY + environment.WEB_API_KEY, {
       email: user.email, password: user.password, returnSecureToken: true
     }).pipe(catchError(this.handleError), tap((resData) => {
       this.handleAuthentication(
