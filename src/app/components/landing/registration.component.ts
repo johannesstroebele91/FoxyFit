@@ -144,6 +144,9 @@ import {UsersWorkoutsComponent} from "../home/users-workouts.component";
                 signupErrorMessage
               }}
             </mat-error>
+            <mat-error><!--*ngIf="requestErrorMessage !== ''"-->
+              {{requestErrorMessage}}
+            </mat-error>
           </form>
         </mat-card-content>
         <mat-card-footer>
@@ -174,6 +177,7 @@ export class RegistrationComponent {
     email: new FormControl('', [Validators.required, Validators.email]),
     password: new FormControl('', Validators.required),
   });
+  public requestErrorMessage: string = '';
 
   get name(): any {
     return this.signupForm.get('name');
@@ -222,8 +226,9 @@ export class RegistrationComponent {
               })
           },
           error: (error: string) => {
-            // TODO use error message later to display problem to user in template!
-            console.log(error)
+            this.requestErrorMessage = error;
+            console.error('Error on sign in:', error);
+            console.log(this.requestErrorMessage)
           },
         })
     }

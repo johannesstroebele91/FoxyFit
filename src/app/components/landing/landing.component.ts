@@ -64,6 +64,9 @@ import {AuthResponseData} from "../../models";
                   ERROR_MESSAGE
                 }}
               </mat-error>
+              <mat-error><!--*ngIf="requestErrorMessage !== ''"-->
+                  {{requestErrorMessage}}
+              </mat-error>
             </mat-form-field>
 
             <mat-form-field style="display: block">
@@ -104,8 +107,8 @@ import {AuthResponseData} from "../../models";
           </button>
         </form>
       </mat-card-content>
-      <mat-error *ngIf="errorMessage" style="margin-top: 10px"
-      >{{ ERROR_MESSAGE }}
+      <mat-error *ngIf="requestErrorMessage !== ''" style="margin-top: 10px"
+      >{{requestErrorMessage}}
       </mat-error>
       <mat-card-footer
       ><p style="margin: 20px auto 0;">
@@ -117,7 +120,6 @@ import {AuthResponseData} from "../../models";
   standalone: true,
 })
 export class LandingComponent implements OnDestroy {
-  errorMessage: string = '';
   hidePasswordInput = true;
   loginForm = new FormGroup({
     email: new FormControl('', [Validators.required, Validators.email]),
@@ -125,7 +127,8 @@ export class LandingComponent implements OnDestroy {
   });
   router = inject(Router);
   authService = inject(AuthService);
-  protected readonly ERROR_MESSAGE = ERROR_MESSAGE;
+  public requestErrorMessage: string = '';
+
   private authServiceSub: Subscription | undefined;
 
   get email(): any {
@@ -152,7 +155,8 @@ export class LandingComponent implements OnDestroy {
             if(response.registered) this.router.navigate(['/home']);
           },
           error: (error) => {
-            console.error('Error logging in:', error);
+            console.log('Error on log in', error)
+            this.requestErrorMessage = 'The combination of the email and password that you have entered, does not exists';
           },
         });
     }
@@ -161,4 +165,6 @@ export class LandingComponent implements OnDestroy {
   ngOnDestroy(): void {
     this.authServiceSub?.unsubscribe()
   }
+
+  protected readonly ERROR_MESSAGE = ERROR_MESSAGE;
 }
