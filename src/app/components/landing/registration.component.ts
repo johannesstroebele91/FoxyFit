@@ -144,7 +144,7 @@ import {UsersWorkoutsComponent} from "../home/users-workouts.component";
                 signupErrorMessage
               }}
             </mat-error>
-            <mat-error><!--*ngIf="requestErrorMessage !== ''"-->
+            <mat-error *ngIf="requestErrorMessage !== ''" style="margin-bottom: 10px">
               {{requestErrorMessage}}
             </mat-error>
           </form>
