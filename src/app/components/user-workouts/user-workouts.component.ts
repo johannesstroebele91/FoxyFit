@@ -121,7 +121,7 @@ export interface IAddWorkoutDialogData {
   ],
   template: `
     @if (user$ | async; as user) {
-    <div style="width: 600px; margin: 20px auto; padding-bottom: 60px">
+    <div style="margin: 20px auto; padding-bottom: 60px; max-width: 600px;">
       <div
         style="display: flex; flex-direction: row; align-items: center; padding-bottom: 18px"
       >

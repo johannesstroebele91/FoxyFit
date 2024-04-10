@@ -36,7 +36,7 @@ import {AuthResponseData} from "../../models";
   ],
   template: `
     <mat-card
-      style="padding: 30px 12px; text-align: center; width: 500px; margin: 0 auto;"
+      style="padding: 30px 12px; text-align: center; max-width: 500px; margin: 0 auto;"
     >
       <mat-card-header style="display: block;">
         <mat-card-title style=" font-size: 36px">Welcome!</mat-card-title>
