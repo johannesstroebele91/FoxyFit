@@ -1,29 +1,33 @@
 # FoxyFit
 
-This community fitness tracker enables users to track their progress, check-in on their friends, and get inspired.
-Angular, Angular Material, Vercel, and Firebase are the most prominent technologies used for this cloud application.
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.2.2.
+FoxFit revolutionizes your fitness journey by providing a vibrant community platform where users can effortlessly track their progress, engage with friends, and find inspiration in each other's achievements. With a dedicated page showcasing the progress of users over the last three months, FoxFit keeps you motivated and connected like never before. Powered by TypeScript, Angular, Angular Material, Firebase Authentication, and Vercel, FoxFit delivers a dynamic, social, and inclusive fitness experience.
 
-## Development server
+# Features
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+- Progress Tracking: Seamlessly track your fitness journey, including workouts, achievements, and milestones, to stay accountable and motivated.
+- Social Check-Ins: Connect with friends, share updates, and celebrate each other's successes through interactive check-ins and encouragement.
+- Inspiration Page: Explore a curated page highlighting the progress of users over the past three months, providing a source of inspiration and motivation for your own fitness goals.
 
-## Code scaffolding
+# Learnings
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+- Angular Material reactive forms 
+- Angular GET-, PUT-, POST-requests with realtime Firebase
+- Email/Password registration and login via Firebase authentication 
+- Protect routs with authentication guards
+- Interceptors for checking authentication automatically for each request
+- Deployment with Vercel
 
-## Build
+# Technology
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+- Frontend: built with Angular and Angular Material for a robust and up-to-date development foundation.
+- Routing with Authentication Guards: Restricts access based on user login status.
+- Mobile-First Design: for seamless use across various platforms.
+- Authentication: Secure user access through Firebase's built-in authentication features.
+- Data Storing: Retrieves and stores data efficiently using Firebase's services.
+- Vercel Deployment: Leverages Vercel's serverless platform for scalability and reliability.
 
-## Running unit tests
+- # Development and Deployment
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+- Development Server: Run ng serve for a local development server accessible at http://localhost:4040/. Changes to source files trigger automatic reloading.
+- Build: Run ng build to create production-ready build artifacts stored in the dist/ directory. Use the --prod flag for optimized production builds.
+- Production Deployment: After building, run node server.js to start the production server. Deployment can be automated using Vercel's continuous integration features.
