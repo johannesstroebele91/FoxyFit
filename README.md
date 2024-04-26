@@ -1,4 +1,4 @@
-# FoxyFit
+# FoxyFit: Community Fitness Tracker
 
 FoxFit revolutionizes your fitness journey by providing a vibrant community platform where users can effortlessly track their progress, engage with friends, and find inspiration in each other's achievements. With a dedicated page showcasing the progress of users over the last three months, FoxFit keeps you motivated and connected like never before. Powered by TypeScript, Angular, Angular Material, Firebase Authentication, and Vercel, FoxFit delivers a dynamic, social, and inclusive fitness experience.
 
